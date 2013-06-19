@@ -1,0 +1,4 @@
+StaringContest
+==============
+
+Multimedia project
