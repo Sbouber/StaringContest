@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
@@ -26,7 +27,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 class FdView extends SampleCvViewBase {
-	private static final String TAG = "Sample::FdView";
+	private static final String TAG = "FdView";
 	private Mat mRgba;
 	private Mat mGray;
 	private Mat mZoomCorner;
@@ -59,8 +60,13 @@ class FdView extends SampleCvViewBase {
 	private int mAbsoluteFaceSize = 0;
 	private int learn_frames = 0;
 	private int max_learn_frames = 5;
+	private int refresh_template_counter = 0;
 	private double match_value;
 	private Rect eyearea = new Rect();
+	
+	
+	MinMaxLocResult oldPosLeft; 
+	MinMaxLocResult oldPosRight;
 
 	public void setMinFaceSize(float faceSize) {
 		mRelativeFaceSize = faceSize;
@@ -187,7 +193,9 @@ class FdView extends SampleCvViewBase {
 	protected Bitmap processFrame(VideoCapture capture) {
 		capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		capture.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
+		
 
+		
 		if (mAbsoluteFaceSize == 0) {
 			int height = mGray.rows();
 
@@ -213,48 +221,110 @@ class FdView extends SampleCvViewBase {
 			Rect[] facesArray = faces.toArray();
 
 			for (int i = 0; i < facesArray.length; i++) {
+				/*
+				 * Get face frame
+				 */
 				Rect r = facesArray[i];
-				Core.rectangle(mGray, r.tl(), r.br(),
-						new Scalar(0, 255, 0, 255), 3);
-				Core.rectangle(mRgba, r.tl(), r.br(),
-						new Scalar(0, 255, 0, 255), 3);
-
-				eyearea = new Rect(r.x + r.width / 8,
-						(int) (r.y + (r.height / 4.5)), r.width - 2 * r.width
-								/ 8, (int) (r.height / 3.0));
-				// r.height / 4.5
-				Core.rectangle(mRgba, eyearea.tl(), eyearea.br(), new Scalar(
-						255, 0, 0, 255), 2);
-				Rect eyearea_right = new Rect(r.x + r.width / 16,
-						(int) (r.y + (r.height / 4.5)),
-						(r.width - 2 * r.width / 16) / 2,
-						(int) (r.height / 3.0));
-				Rect eyearea_left = new Rect(r.x + r.width / 16
-						+ (r.width - 2 * r.width / 16) / 2,
-						(int) (r.y + (r.height / 4.5)),
-						(r.width - 2 * r.width / 16) / 2,
-						(int) (r.height / 3.0));
+				
+				Scalar red 	 = new Scalar( 255, 0, 0, 255 );
+				Scalar green = new Scalar( 0, 255, 0, 255 );
+				Scalar blue	 = new Scalar( 0, 0, 255, 255 );
+				
+				Core.rectangle(mGray, r.tl(), r.br(), green, 3);
+				Core.rectangle(mRgba, r.tl(), r.br(), green, 3);
+				
+				int x 		= r.x + r.width / 8;
+				int y 		= (int) (r.y + (r.height / 4.5));
+				int width	= r.width - 2 * r.width / 8;
+				int height  = (int) (r.height / 3.0);
+				
+				eyearea = new Rect(x ,y ,width ,height);
+				
+				Core.rectangle(mRgba, eyearea.tl(), eyearea.br(), blue, 2);
+				
+				
+				/*
+				 * Determine Right eye rectangle
+				 */
+				x 		= r.x + r.width / 16;
+				y 		= (int) (r.y + (r.height / 4.5));
+				width	= (r.width - 2 * r.width / 16) / 2;
+				height  = (int) (r.height / 3.0);
+				
+				Rect eyearea_right = new Rect(x, y, width, height );
+				
+				/*
+				 * Determine Left eye right angle
+				 */
+				x 		= r.x + r.width / 16 + (r.width - 2 * r.width / 16) / 2;
+				y		= (int) (r.y + (r.height / 4.5));
+				width	= (r.width - 2 * r.width / 16) / 2;
+				height	= (int) (r.height / 3.0);
+				
+				Rect eyearea_left = new Rect(x, y, width, height);
+				
 				Core.rectangle(mRgba, eyearea_left.tl(), eyearea_left.br(),
-						new Scalar(255, 0, 0, 255), 2);
+						new Scalar(244, 27, 175, 255), 2);
 				Core.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),
-						new Scalar(255, 0, 0, 255), 2);
-
+						new Scalar(27, 244, 221, 255), 2);
+				
+			
 				if (learn_frames < max_learn_frames) {
 					teplateR = get_template(mCascadeER, eyearea_right, 24);
 					teplateL = get_template(mCascadeEL, eyearea_left, 24);
+				
 					learn_frames++;
+				
 				} else {
 					match_value = match_eye(eyearea_right, teplateR,
 							FdActivity.method);
 
 					match_value = match_eye(eyearea_left, teplateL,
 							FdActivity.method);
+					
+					Mat leftEyeGray  = mGray.submat( eyearea_left);
+					Mat rightEyeGray = mGray.submat( eyearea_right );
+					MinMaxLocResult resultLeft = Core.minMaxLoc( leftEyeGray );
+					MinMaxLocResult resultRight = Core.minMaxLoc( rightEyeGray );
+					
+					Scalar meanL = Core.mean( leftEyeGray );
+					Scalar meanR = Core.mean( rightEyeGray );
+					
+//					Log.e( TAG, "meanL: "+ meanL + " dl: " + resultLeft.minVal + " lp: " + resultLeft.minLoc + " olp: " + oldPosLeft +
+//							"meanR"+ meanR +"dr: " + resultRight.minVal + " rp: " + resultRight.minLoc + " olr: " + oldPosRight );
+					
+					if( oldPosLeft != null && oldPosRight != null ) {
+						
+						Point oldPosLeftPoint = oldPosLeft.minLoc;
+						Point posLeftPoint = resultLeft.minLoc;
+						
+						Point oldPosRightPoint = oldPosLeft.minLoc;
+						Point posRightPoint = resultLeft.minLoc;
+						
+						double distanceL = Math.sqrt( (oldPosLeftPoint.x-posLeftPoint.x)*(oldPosLeftPoint.x-posLeftPoint.x) + (oldPosLeftPoint.y-posLeftPoint.y)*(oldPosLeftPoint.y-posLeftPoint.y));
+						double distanceR = Math.sqrt( (oldPosRightPoint.x-posRightPoint.x)*(oldPosRightPoint.x-posRightPoint.x) + (oldPosRightPoint.y-posRightPoint.y)*(oldPosRightPoint.y-posRightPoint.y));
+						
+						int offset = 30;
+						
+						if( distanceL > offset && distanceR > offset ) {
+							Log.e(TAG, "Blink");
+						}
+					}
+					
+					oldPosLeft  = resultLeft;
+					oldPosRight = resultRight;
+					
+					refresh_template_counter++;
+					refresh_template_counter = refresh_template_counter % 20;
+					if( refresh_template_counter >= 19 )
+						learn_frames = 0;
+							
 				}
 
-				Imgproc.resize(mRgba.submat(eyearea_left), mZoomWindow2,
-						mZoomWindow2.size());
-				Imgproc.resize(mRgba.submat(eyearea_right), mZoomWindow,
-						mZoomWindow.size());
+//				Imgproc.resize(mRgba.submat(eyearea_left), mZoomWindow2,
+//						mZoomWindow2.size());
+//				Imgproc.resize(mRgba.submat(eyearea_right), mZoomWindow,
+//						mZoomWindow.size());
 
 			}
 		} else if (mDetectorType == NATIVE_DETECTOR) {
