@@ -41,7 +41,7 @@ public class FpsMeter {
 			prevFrameTime = time;
 			DecimalFormat twoPlaces = new DecimalFormat("0.00");
 			strfps = twoPlaces.format(fps) + " FPS";
-			Log.i(TAG, strfps);
+			// Log.i(TAG, strfps);
 		}
 	}
 

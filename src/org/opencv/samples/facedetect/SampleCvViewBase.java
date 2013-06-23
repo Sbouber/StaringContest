@@ -32,8 +32,9 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 		Log.i(TAG, "openCamera");
 		synchronized (this) {
 			releaseCamera();
-			// Use front camera
+			/* Use front camera */
 			camera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
+
 			if (!camera.isOpened()) {
 				camera.release();
 				camera = null;
@@ -41,6 +42,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -65,6 +67,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 				// TODO: We could select a smaller size, might get a higher fps.
 				// selecting optimal camera preview size
 				double minDiff = Double.MAX_VALUE;
+
 				for (Size size : sizes) {
 					if (Math.abs(size.height - height) < minDiff) {
 						mFrameWidth = (int) size.width;
@@ -121,6 +124,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 			if (bmp != null) {
 				Canvas canvas = holder.lockCanvas();
+
 				if (canvas != null) {
 					canvas.drawBitmap(bmp,
 							(canvas.getWidth() - bmp.getWidth()) / 2,
@@ -129,6 +133,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 							(canvas.getWidth() - bmp.getWidth()) / 2, 0);
 					holder.unlockCanvasAndPost(canvas);
 				}
+
 				bmp.recycle();
 			}
 		}

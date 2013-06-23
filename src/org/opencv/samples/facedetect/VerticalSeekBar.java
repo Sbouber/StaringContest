@@ -6,9 +6,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.SeekBar;
 
-/**
- * Vertical Seekbar component rozsireni widgetu SeekBar pro vertikalni pouziti
- */
+/** Vertical Seekbar component */
 
 // TODO: Remove when final imgproc param has been chosen.
 public class VerticalSeekBar extends SeekBar {
@@ -62,6 +60,7 @@ public class VerticalSeekBar extends SeekBar {
 		case MotionEvent.ACTION_CANCEL:
 			break;
 		}
+		
 		return true;
 	}
 }

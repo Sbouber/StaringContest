@@ -163,6 +163,7 @@ public class FdActivity extends Activity {
 	protected void onPause() {
 		Log.i(TAG, "onPause");
 		super.onPause();
+		
 		if (view != null)
 			view.releaseCamera();
 	}
@@ -171,6 +172,7 @@ public class FdActivity extends Activity {
 	protected void onResume() {
 		Log.i(TAG, "onResume");
 		super.onResume();
+		
 		if (view != null && !view.openCamera()) {
 			AlertDialog ad = new AlertDialog.Builder(this).create();
 			ad.setCancelable(false); // This blocks the 'BACK' button
@@ -193,6 +195,7 @@ public class FdActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		Log.i(TAG, "Trying to load OpenCV library");
+		
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
 				openCVCallBack)) {
 			Log.e(TAG, "Cannot connect to OpenCV Manager");
@@ -227,6 +230,7 @@ public class FdActivity extends Activity {
 			item.setTitle(mDetectorName[mDetectorType]);
 			view.setDetectorType(mDetectorType);
 		}
+		
 		return true;
 	}
 }
