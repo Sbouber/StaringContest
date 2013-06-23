@@ -52,7 +52,7 @@ class FdView extends SampleCvViewBase {
 	private Mat result;
 	private Mat teplateR;
 	private Mat teplateL;
-	private File CascadeFile;
+	private File cascadeFile;
 	private CascadeClassifier javaDetector;
 	private CascadeClassifier cascadeER;
 	private CascadeClassifier cascadeEL;
@@ -103,8 +103,8 @@ class FdView extends SampleCvViewBase {
 					R.raw.lbpcascade_frontalface);
 
 			File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
-			mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-			FileOutputStream os = new FileOutputStream(mCascadeFile);
+			cascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+			FileOutputStream os = new FileOutputStream(cascadeFile);
 
 			byte[] buffer = new byte[4096];
 			int bytesRead;
@@ -154,7 +154,7 @@ class FdView extends SampleCvViewBase {
 			// ------------------------------------------------------------------------------------------------------
 
 			javaDetector = new CascadeClassifier(
-					mCascadeFile.getAbsolutePath());
+					cascadeFile.getAbsolutePath());
 			cascadeER = new CascadeClassifier(cascadeFileER.getAbsolutePath());
 			cascadeEL = new CascadeClassifier(cascadeFileER.getAbsolutePath());
 			if (javaDetector.empty() || cascadeER.empty()
@@ -169,7 +169,7 @@ class FdView extends SampleCvViewBase {
 								+ mCascadeFile.getAbsolutePath());
 
 			nativeDetector = new DetectionBasedTracker(
-					mCascadeFile.getAbsolutePath(), 0);
+					cascadeFile.getAbsolutePath(), 0);
 
 			cascadeDir.delete();
 			cascadeFileER.delete();
@@ -294,8 +294,9 @@ class FdView extends SampleCvViewBase {
 
 				matchValue = match_eye(eyearea_left, teplateL,
 						FdActivity.method);
-					
-				Mat leftEyeGray  = gray.submat( eyearea_left);
+
+                // Blink detection attempt 1
+				/*Mat leftEyeGray  = gray.submat( eyearea_left);
 				Mat rightEyeGray = gray.submat( eyearea_right );
 				MinMaxLocResult resultLeft = Core.minMaxLoc( leftEyeGray );
 				MinMaxLocResult resultRight = Core.minMaxLoc( rightEyeGray );
@@ -306,7 +307,8 @@ class FdView extends SampleCvViewBase {
 //				Log.e( TAG, "meanL: "+ meanL + " dl: " + resultLeft.minVal + " lp: " + resultLeft.minLoc + " olp: " + oldPosLeft +
 //						"meanR"+ meanR +"dr: " + resultRight.minVal + " rp: " + resultRight.minLoc + " olr: " + oldPosRight );
 					
-				if( oldPosLeft != null && oldPosRight != null ) {
+
+                if( oldPosLeft != null && oldPosRight != null ) {
 						
 					Point oldPosLeftPoint = oldPosLeft.minLoc;
 					Point posLeftPoint = resultLeft.minLoc;
@@ -325,7 +327,9 @@ class FdView extends SampleCvViewBase {
 				}
 					
 				oldPosLeft  = resultLeft;
-				oldPosRight = resultRight;
+				oldPosRight = resultRight; */
+
+
 					
 				refreshTemplateCounter++;
 				refreshTemplateCounter = refreshTemplateCounter % 20;
@@ -391,7 +395,10 @@ class FdView extends SampleCvViewBase {
 		if (mTemplate.cols() == 0 || mTemplate.rows() == 0) {
 			return 0.0;
 		}
-		result = new Mat(result_cols, result_rows, CvType.CV_32FC1);
+
+        //todo 32F check from http://www.gidforums.com/t-26905.html
+		//result = new Mat(result_cols, result_rows, CvType.CV_32FC1);
+        result = new Mat(result_cols, result_rows, CvType.CV_32F);
 
 		switch (type) {
 		case TM_SQDIFF:
@@ -416,6 +423,14 @@ class FdView extends SampleCvViewBase {
 					Imgproc.TM_CCORR_NORMED);
 			break;
 		}
+
+        //Blink detection attempt 2
+        if(type == TM_CCOEFF_NORMED) {
+            Scalar corrMean = Core.mean(result);
+            if(corrMean.val[0] >= 0.5 && corrMean.val[0] <= 0.55) {
+                Log.e(TAG, "You better blinked bitch (" + corrMean.val[0] + ")");
+            }
+        }
 
 		Core.MinMaxLocResult mmres = Core.minMaxLoc(result);
 
@@ -486,14 +501,14 @@ class FdView extends SampleCvViewBase {
 				rgba.release();
 			if (gray != null)
 				gray.release();
-			if (mCascadeFile != null)
-				mCascadeFile.delete();
+			if (cascadeFile != null)
+				cascadeFile.delete();
 			if (nativeDetector != null)
 				nativeDetector.release();
 
 			rgba = null;
 			gray = null;
-			mCascadeFile = null;
+			cascadeFile = null;
 		}
 	}
 }
