@@ -49,16 +49,18 @@ public class FdActivity extends Activity {
 				view.setDetectorType(mDetectorType);
 				view.setMinFaceSize(0.2f);
 
-				VerticalSeekBar VerticalseekBar = new VerticalSeekBar(getApplicationContext());
+				VerticalSeekBar VerticalseekBar = new VerticalSeekBar(
+						getApplicationContext());
 				VerticalseekBar.setMax(5);
 				VerticalseekBar.setPadding(20, 20, 20, 20);
 				RelativeLayout.LayoutParams vsek = new RelativeLayout.LayoutParams(
 						RelativeLayout.LayoutParams.WRAP_CONTENT, 400);
 				vsek.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				VerticalseekBar.setId(1);
-				VerticalseekBar	.setOnSeekBarChangeListener(
-                        new OnSeekBarChangeListener() {
-							public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				VerticalseekBar
+						.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+							public void onProgressChanged(SeekBar seekBar,
+									int progress, boolean fromUser) {
 								method = progress;
 
 								switch (method) {

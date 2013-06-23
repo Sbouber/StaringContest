@@ -28,24 +28,24 @@ import android.view.SurfaceHolder;
 
 class FdView extends SampleCvViewBase {
 
-    public static final int JAVA_DETECTOR = 0;
-    public static final int NATIVE_DETECTOR = 1;
+	public static final int JAVA_DETECTOR = 0;
+	public static final int NATIVE_DETECTOR = 1;
 
-    private static final int TM_SQDIFF = 0;
-    private static final int TM_SQDIFF_NORMED = 1;
-    private static final int TM_CCOEFF = 2;
-    private static final int TM_CCOEFF_NORMED = 3;
-    private static final int TM_CCORR = 4;
-    private static final int TM_CCORR_NORMED = 5;
+	private static final int TM_SQDIFF = 0;
+	private static final int TM_SQDIFF_NORMED = 1;
+	private static final int TM_CCOEFF = 2;
+	private static final int TM_CCOEFF_NORMED = 3;
+	private static final int TM_CCORR = 4;
+	private static final int TM_CCORR_NORMED = 5;
 
 	private static final String TAG = "FdView";
-    private static final String CASCADE_DIR = "cascade";
-    private static final String CASCADE_FILENAME = "tmp.xml";
-    private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
+	private static final String CASCADE_DIR = "cascade";
+	private static final String CASCADE_FILENAME = "tmp.xml";
+	private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
 
-    private Mat rgba;
+	private Mat rgba;
 	private Mat gray;
-    //todo zoom stuff can be removed
+	// TODO: zoom stuff can be removed
 	private Mat zoomCorner;
 	private Mat zoomWindow;
 	private Mat zoomWindow2;
@@ -56,7 +56,8 @@ class FdView extends SampleCvViewBase {
 	private CascadeClassifier javaDetector;
 	private CascadeClassifier cascadeER;
 	private CascadeClassifier cascadeEL;
-    //todo Compare native and javadetector, this option is somewhere in the menu.
+	// TODO: Compare native and javadetector, this option is somewhere in the
+	// menu.
 	private DetectionBasedTracker nativeDetector;
 
 	private int detectorType = JAVA_DETECTOR;
@@ -68,7 +69,7 @@ class FdView extends SampleCvViewBase {
 	private int refreshTemplateCounter = 0;
 	private double matchValue;
 	private Rect eyeArea = new Rect();
-	
+
 	private MinMaxLocResult oldPosLeft;
 	private MinMaxLocResult oldPosRight;
 
@@ -117,9 +118,9 @@ class FdView extends SampleCvViewBase {
 			// --------------------------------- load left eye classificator
 			// -----------------------------------
 			InputStream iser = context.getResources().openRawResource(
-                    R.raw.haarcascade_lefteye_2splits);
+					R.raw.haarcascade_lefteye_2splits);
 			File cascadeDirER = context.getDir("cascadeER",
-                    Context.MODE_PRIVATE);
+					Context.MODE_PRIVATE);
 			File cascadeFileER = new File(cascadeDirER,
 					"haarcascade_eye_right.xml");
 			FileOutputStream oser = new FileOutputStream(cascadeFileER);
@@ -136,9 +137,9 @@ class FdView extends SampleCvViewBase {
 			// --------------------------------- load right eye classificator
 			// ------------------------------------
 			InputStream isel = context.getResources().openRawResource(
-                    R.raw.haarcascade_lefteye_2splits);
+					R.raw.haarcascade_lefteye_2splits);
 			File cascadeDirEL = context.getDir("cascadeEL",
-                    Context.MODE_PRIVATE);
+					Context.MODE_PRIVATE);
 			File cascadeFileEL = new File(cascadeDirEL,
 					"haarcascade_eye_left.xml");
 			FileOutputStream osel = new FileOutputStream(cascadeFileEL);
@@ -153,12 +154,10 @@ class FdView extends SampleCvViewBase {
 
 			// ------------------------------------------------------------------------------------------------------
 
-			javaDetector = new CascadeClassifier(
-					cascadeFile.getAbsolutePath());
+			javaDetector = new CascadeClassifier(cascadeFile.getAbsolutePath());
 			cascadeER = new CascadeClassifier(cascadeFileER.getAbsolutePath());
 			cascadeEL = new CascadeClassifier(cascadeFileER.getAbsolutePath());
-			if (javaDetector.empty() || cascadeER.empty()
-					|| cascadeEL.empty()) {
+			if (javaDetector.empty() || cascadeER.empty() || cascadeEL.empty()) {
 				Log.e(TAG, "Failed to load cascade classifier");
 				javaDetector = null;
 				cascadeER = null;
@@ -166,7 +165,7 @@ class FdView extends SampleCvViewBase {
 			} else
 				Log.i(TAG,
 						"Loaded cascade classifier from "
-								+ mCascadeFile.getAbsolutePath());
+								+ cascadeFile.getAbsolutePath());
 
 			nativeDetector = new DetectionBasedTracker(
 					cascadeFile.getAbsolutePath(), 0);
@@ -183,12 +182,12 @@ class FdView extends SampleCvViewBase {
 		}
 	}
 
-    private CascadeClassifier loadCascade(int resourceId) {
-        // We need to write our resource to a file first
-        // since CascadeClassifier takes a filename...
-        //todo write resource to file -> load classifier from file
-        return null;
-    }
+	private CascadeClassifier loadCascade(int resourceId) {
+		// We need to write our resource to a file first
+		// since CascadeClassifier takes a filename...
+		// TODO: write resource to file -> load classifier from file
+		return null;
+	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
@@ -205,7 +204,7 @@ class FdView extends SampleCvViewBase {
 	protected Bitmap processFrame(VideoCapture capture) {
 		capture.retrieve(rgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		capture.retrieve(gray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
-		
+
 		if (absoluteFaceSize == 0) {
 			int height = gray.rows();
 
@@ -230,45 +229,44 @@ class FdView extends SampleCvViewBase {
 
 			Rect[] facesArray = faces.toArray();
 
-            //todo test this
-            int largest = 0;
-            double maxArea = 0;
-            for(int i = 0; i < facesArray.length; i++) {
-                if(facesArray[i].area() > maxArea) {
-                    largest = i;
-                    maxArea = facesArray[i].area();
-                }
-            }
+			// TODO: test this
+			int largest = 0;
+			double maxArea = 0;
+			for (int i = 0; i < facesArray.length; i++) {
+				if (facesArray[i].area() > maxArea) {
+					largest = i;
+					maxArea = facesArray[i].area();
+				}
+			}
 
-			//Get face frame
+			// Get face frame
 			Rect r = facesArray[largest];
-				
-			Scalar red 	 = new Scalar( 255, 0, 0, 255 );
-			Scalar green = new Scalar( 0, 255, 0, 255 );
-			Scalar blue	 = new Scalar( 0, 0, 255, 255 );
-				
+
+			Scalar red = new Scalar(255, 0, 0, 255);
+			Scalar green = new Scalar(0, 255, 0, 255);
+			Scalar blue = new Scalar(0, 0, 255, 255);
+
 			Core.rectangle(gray, r.tl(), r.br(), green, 3);
 			Core.rectangle(rgba, r.tl(), r.br(), green, 3);
-				
+
 			int x = r.x + r.width / 8;
 			int y = (int) (r.y + (r.height / 4.5));
 			int width = r.width - 2 * r.width / 8;
 			int height = (int) (r.height / 3.0);
-				
-			eyeArea = new Rect(x ,y ,width ,height);
+
+			eyeArea = new Rect(x, y, width, height);
 
 			Core.rectangle(rgba, eyeArea.tl(), eyeArea.br(), blue, 2);
-				
-				
-			//Determine Right eye rectangle
+
+			// Determine Right eye rectangle
 			x = r.x + r.width / 16;
 			y = (int) (r.y + (r.height / 4.5));
 			width = (r.width - 2 * r.width / 16) / 2;
 			height = (int) (r.height / 3.0);
-				
-			Rect eyearea_right = new Rect(x, y, width, height );
-				
-			//Determine Left eye right angle
+
+			Rect eyearea_right = new Rect(x, y, width, height);
+
+			// Determine Left eye right angle
 			x = r.x + r.width / 16 + (r.width - 2 * r.width / 16) / 2;
 			y = (int) (r.y + (r.height / 4.5));
 			width = (r.width - 2 * r.width / 16) / 2;
@@ -280,14 +278,13 @@ class FdView extends SampleCvViewBase {
 					new Scalar(244, 27, 175, 255), 2);
 			Core.rectangle(rgba, eyearea_right.tl(), eyearea_right.br(),
 					new Scalar(27, 244, 221, 255), 2);
-				
-			
+
 			if (learnFrames < MAX_LEARN_FRAMES) {
 				teplateR = get_template(cascadeER, eyearea_right, 24);
 				teplateL = get_template(cascadeEL, eyearea_left, 24);
-				
+
 				learnFrames++;
-				
+
 			} else {
 				matchValue = match_eye(eyearea_right, teplateR,
 						FdActivity.method);
@@ -295,53 +292,59 @@ class FdView extends SampleCvViewBase {
 				matchValue = match_eye(eyearea_left, teplateL,
 						FdActivity.method);
 
-                // Blink detection attempt 1
-				/*Mat leftEyeGray  = gray.submat( eyearea_left);
-				Mat rightEyeGray = gray.submat( eyearea_right );
-				MinMaxLocResult resultLeft = Core.minMaxLoc( leftEyeGray );
-				MinMaxLocResult resultRight = Core.minMaxLoc( rightEyeGray );
+				// Blink detection attempt 1
+				/*
+				 * Mat leftEyeGray = gray.submat( eyearea_left); Mat
+				 * rightEyeGray = gray.submat( eyearea_right ); MinMaxLocResult
+				 * resultLeft = Core.minMaxLoc( leftEyeGray ); MinMaxLocResult
+				 * resultRight = Core.minMaxLoc( rightEyeGray );
+				 * 
+				 * Scalar meanL = Core.mean( leftEyeGray ); Scalar meanR =
+				 * Core.mean( rightEyeGray );
+				 * 
+				 * // Log.e( TAG, "meanL: "+ meanL + " dl: " + resultLeft.minVal
+				 * + " lp: " + resultLeft.minLoc + " olp: " + oldPosLeft + //
+				 * "meanR"+ meanR +"dr: " + resultRight.minVal + " rp: " +
+				 * resultRight.minLoc + " olr: " + oldPosRight );
+				 * 
+				 * 
+				 * if( oldPosLeft != null && oldPosRight != null ) {
+				 * 
+				 * Point oldPosLeftPoint = oldPosLeft.minLoc; Point posLeftPoint
+				 * = resultLeft.minLoc;
+				 * 
+				 * Point oldPosRightPoint = oldPosLeft.minLoc; Point
+				 * posRightPoint = resultLeft.minLoc;
+				 * 
+				 * double distanceL = Math.sqrt(
+				 * (oldPosLeftPoint.x-posLeftPoint.
+				 * x)*(oldPosLeftPoint.x-posLeftPoint.x) +
+				 * (oldPosLeftPoint.y-posLeftPoint
+				 * .y)*(oldPosLeftPoint.y-posLeftPoint.y)); double distanceR =
+				 * Math.sqrt(
+				 * (oldPosRightPoint.x-posRightPoint.x)*(oldPosRightPoint
+				 * .x-posRightPoint.x) +
+				 * (oldPosRightPoint.y-posRightPoint.y)*(oldPosRightPoint
+				 * .y-posRightPoint.y));
+				 * 
+				 * int offset = 30;
+				 * 
+				 * if( distanceL > offset && distanceR > offset ) { Log.e(TAG,
+				 * "Blink"); } }
+				 * 
+				 * oldPosLeft = resultLeft; oldPosRight = resultRight;
+				 */
 
-				Scalar meanL = Core.mean( leftEyeGray );
-				Scalar meanR = Core.mean( rightEyeGray );
-					
-//				Log.e( TAG, "meanL: "+ meanL + " dl: " + resultLeft.minVal + " lp: " + resultLeft.minLoc + " olp: " + oldPosLeft +
-//						"meanR"+ meanR +"dr: " + resultRight.minVal + " rp: " + resultRight.minLoc + " olr: " + oldPosRight );
-					
-
-                if( oldPosLeft != null && oldPosRight != null ) {
-						
-					Point oldPosLeftPoint = oldPosLeft.minLoc;
-					Point posLeftPoint = resultLeft.minLoc;
-
-					Point oldPosRightPoint = oldPosLeft.minLoc;
-					Point posRightPoint = resultLeft.minLoc;
-						
-					double distanceL = Math.sqrt( (oldPosLeftPoint.x-posLeftPoint.x)*(oldPosLeftPoint.x-posLeftPoint.x) + (oldPosLeftPoint.y-posLeftPoint.y)*(oldPosLeftPoint.y-posLeftPoint.y));
-					double distanceR = Math.sqrt( (oldPosRightPoint.x-posRightPoint.x)*(oldPosRightPoint.x-posRightPoint.x) + (oldPosRightPoint.y-posRightPoint.y)*(oldPosRightPoint.y-posRightPoint.y));
-						
-					int offset = 30;
-						
-					if( distanceL > offset && distanceR > offset ) {
-						Log.e(TAG, "Blink");
-					}
-				}
-					
-				oldPosLeft  = resultLeft;
-				oldPosRight = resultRight; */
-
-
-					
 				refreshTemplateCounter++;
 				refreshTemplateCounter = refreshTemplateCounter % 20;
-				if( refreshTemplateCounter >= 19 )
+				if (refreshTemplateCounter >= 19)
 					learnFrames = 0;
-				}
+			}
 
-//				Imgproc.resize(rgba.submat(eyearea_left), zoomWindow2,
-//						zoomWindow2.size());
-//				Imgproc.resize(rgba.submat(eyearea_right), zoomWindow,
-//						zoomWindow.size());
-
+			// Imgproc.resize(rgba.submat(eyearea_left), zoomWindow2,
+			// zoomWindow2.size());
+			// Imgproc.resize(rgba.submat(eyearea_right), zoomWindow,
+			// zoomWindow.size());
 
 		} else if (detectorType == NATIVE_DETECTOR) {
 			if (nativeDetector != null)
@@ -356,7 +359,7 @@ class FdView extends SampleCvViewBase {
 					FACE_RECT_COLOR, 3);
 
 		Bitmap bmp = Bitmap.createBitmap(rgba.cols(), rgba.rows(),
-                Bitmap.Config.ARGB_8888);
+				Bitmap.Config.ARGB_8888);
 
 		try {
 			Utils.matToBitmap(rgba, bmp);
@@ -381,8 +384,8 @@ class FdView extends SampleCvViewBase {
 		if (zoomWindow == null) {
 			zoomWindow = rgba.submat(rows / 2 + rows / 10, rows, cols / 2
 					+ cols / 10, cols);
-			zoomWindow2 = rgba.submat(0, rows / 2 - rows / 10, cols / 2
-					+ cols / 10, cols);
+			zoomWindow2 = rgba.submat(0, rows / 2 - rows / 10, cols / 2 + cols
+					/ 10, cols);
 		}
 
 	}
@@ -396,9 +399,9 @@ class FdView extends SampleCvViewBase {
 			return 0.0;
 		}
 
-        //todo 32F check from http://www.gidforums.com/t-26905.html
-		//result = new Mat(result_cols, result_rows, CvType.CV_32FC1);
-        result = new Mat(result_cols, result_rows, CvType.CV_32F);
+		// TODO: 32F check from http://www.gidforums.com/t-26905.html
+		// result = new Mat(result_cols, result_rows, CvType.CV_32FC1);
+		result = new Mat(result_cols, result_rows, CvType.CV_32F);
 
 		switch (type) {
 		case TM_SQDIFF:
@@ -424,13 +427,13 @@ class FdView extends SampleCvViewBase {
 			break;
 		}
 
-        //Blink detection attempt 2
-        if(type == TM_CCOEFF_NORMED) {
-            Scalar corrMean = Core.mean(result);
-            if(corrMean.val[0] >= 0.5 && corrMean.val[0] <= 0.55) {
-                Log.e(TAG, "You better blinked bitch (" + corrMean.val[0] + ")");
-            }
-        }
+		// Blink detection attempt 2
+		if (type == TM_CCOEFF_NORMED) {
+			Scalar corrMean = Core.mean(result);
+			if (corrMean.val[0] >= 0.5 && corrMean.val[0] <= 0.55) {
+				Log.e(TAG, "You better blinked bitch (" + corrMean.val[0] + ")");
+			}
+		}
 
 		Core.MinMaxLocResult mmres = Core.minMaxLoc(result);
 

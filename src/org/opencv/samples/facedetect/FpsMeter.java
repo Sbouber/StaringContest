@@ -9,7 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
-//todo Replace with org.opencv.android.FPSMeter
+//TODO: Replace with org.opencv.android.FPSMeter
 public class FpsMeter {
 	private static final String TAG = "Sample::FpsMeter";
 	int step;
@@ -34,6 +34,7 @@ public class FpsMeter {
 
 	public void measure() {
 		framesCouner++;
+
 		if (framesCouner % step == 0) {
 			long time = Core.getTickCount();
 			double fps = step * freq / (time - prevFrameTime);
@@ -45,7 +46,7 @@ public class FpsMeter {
 	}
 
 	public void draw(Canvas canvas, float offsetx, float offsety) {
-		canvas.drawText(strfps, 20 + offsetx, 10 + 50 + offsety, paint);
+		canvas.drawText(strfps, 100 + offsetx, 100 + offsety, paint);
 	}
 
 }
