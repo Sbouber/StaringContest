@@ -19,23 +19,22 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class FdActivity extends Activity {
-	private static final String TAG = "Sample::Activity";
+	private static final String TAG = "Activity";
 
-	private MenuItem mItemFace50;
-	private MenuItem mItemFace40;
-	private MenuItem mItemFace30;
-	private MenuItem mItemFace20;
-	private MenuItem mItemType;
+	private MenuItem itemFace50;
+	private MenuItem itemFace40;
+	private MenuItem itemFace30;
+	private MenuItem itemFace20;
+	private MenuItem itemType;
 
-	private FdView mView;
-	private TextView matching_method;
+	private FdView view;
+	private TextView matchingMethod;
 	public static int method = 1;
 
-	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
+	private BaseLoaderCallback openCVCallBack = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
 			switch (status) {
@@ -46,58 +45,52 @@ public class FdActivity extends Activity {
 				// System.loadLibrary("detection_based_tracker");
 
 				// Create and set View
-				mView = new FdView(mAppContext);
-				mView.setDetectorType(mDetectorType);
-				mView.setMinFaceSize(0.2f);
+				view = new FdView(mAppContext);
+				view.setDetectorType(mDetectorType);
+				view.setMinFaceSize(0.2f);
 
-				VerticalSeekBar VerticalseekBar = new VerticalSeekBar(
-						getApplicationContext());
+				VerticalSeekBar VerticalseekBar = new VerticalSeekBar(getApplicationContext());
 				VerticalseekBar.setMax(5);
 				VerticalseekBar.setPadding(20, 20, 20, 20);
 				RelativeLayout.LayoutParams vsek = new RelativeLayout.LayoutParams(
 						RelativeLayout.LayoutParams.WRAP_CONTENT, 400);
 				vsek.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				VerticalseekBar.setId(1);
-				VerticalseekBar
-						.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-							public void onProgressChanged(SeekBar seekBar,
-									int progress, boolean fromUser) {
-
+				VerticalseekBar	.setOnSeekBarChangeListener(
+                        new OnSeekBarChangeListener() {
+							public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 								method = progress;
+
 								switch (method) {
 								case 0:
-									matching_method.setText("TM_SQDIFF");
+									matchingMethod.setText("TM_SQDIFF");
 									break;
 								case 1:
-									matching_method.setText("TM_SQDIFF_NORMED");
+									matchingMethod.setText("TM_SQDIFF_NORMED");
 									break;
 								case 2:
-									matching_method.setText("TM_CCOEFF");
+									matchingMethod.setText("TM_CCOEFF");
 									break;
 								case 3:
-									matching_method.setText("TM_CCOEFF_NORMED");
+									matchingMethod.setText("TM_CCOEFF_NORMED");
 									break;
 								case 4:
-									matching_method.setText("TM_CCORR");
+									matchingMethod.setText("TM_CCORR");
 									break;
 								case 5:
-									matching_method.setText("TM_CCORR_NORMED");
+									matchingMethod.setText("TM_CCORR_NORMED");
 									break;
 								}
-
 							}
 
-							public void onStartTrackingTouch(SeekBar seekBar) {
-							}
+							public void onStartTrackingTouch(SeekBar seekBar) {}
 
-							public void onStopTrackingTouch(SeekBar seekBar) {
-							}
+							public void onStopTrackingTouch(SeekBar seekBar) {}
 						});
 
-				matching_method = new TextView(getApplicationContext());
-				matching_method.setText("TM_SQDIFF");
-				matching_method.setTextColor(Color.YELLOW);
+				matchingMethod = new TextView(getApplicationContext());
+				matchingMethod.setText("TM_SQDIFF");
+				matchingMethod.setTextColor(Color.YELLOW);
 				RelativeLayout.LayoutParams matching_method_param = new RelativeLayout.LayoutParams(
 						RelativeLayout.LayoutParams.WRAP_CONTENT,
 						RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -116,22 +109,22 @@ public class FdActivity extends Activity {
 
 				btn.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
-						mView.resetLearFramesCount();
+						view.resetLearnFramesCount();
 					}
 				});
 
 				RelativeLayout frameLayout = new RelativeLayout(
 						getApplicationContext());
-				frameLayout.addView(mView, 0);
+				frameLayout.addView(view, 0);
 				frameLayout.addView(btn, btnp);
 
 				frameLayout.addView(VerticalseekBar, vsek);
-				frameLayout.addView(matching_method, matching_method_param);
+				frameLayout.addView(matchingMethod, matching_method_param);
 
 				setContentView(frameLayout);
 
 				// Check native OpenCV camera
-				if (!mView.openCamera()) {
+				if (!view.openCamera()) {
 					AlertDialog ad = new AlertDialog.Builder(mAppContext)
 							.create();
 					ad.setCancelable(false); // This blocks the 'BACK' button
@@ -168,15 +161,15 @@ public class FdActivity extends Activity {
 	protected void onPause() {
 		Log.i(TAG, "onPause");
 		super.onPause();
-		if (mView != null)
-			mView.releaseCamera();
+		if (view != null)
+			view.releaseCamera();
 	}
 
 	@Override
 	protected void onResume() {
 		Log.i(TAG, "onResume");
 		super.onResume();
-		if (mView != null && !mView.openCamera()) {
+		if (view != null && !view.openCamera()) {
 			AlertDialog ad = new AlertDialog.Builder(this).create();
 			ad.setCancelable(false); // This blocks the 'BACK' button
 			ad.setMessage("Fatal error: can't open camera!");
@@ -199,7 +192,7 @@ public class FdActivity extends Activity {
 
 		Log.i(TAG, "Trying to load OpenCV library");
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
-				mOpenCVCallBack)) {
+				openCVCallBack)) {
 			Log.e(TAG, "Cannot connect to OpenCV Manager");
 		}
 	}
@@ -207,11 +200,11 @@ public class FdActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.i(TAG, "onCreateOptionsMenu");
-		mItemFace50 = menu.add("Face size 50%");
-		mItemFace40 = menu.add("Face size 40%");
-		mItemFace30 = menu.add("Face size 30%");
-		mItemFace20 = menu.add("Face size 20%");
-		mItemType = menu.add(mDetectorName[mDetectorType]);
+		itemFace50 = menu.add("Face size 50%");
+		itemFace40 = menu.add("Face size 40%");
+		itemFace30 = menu.add("Face size 30%");
+		itemFace20 = menu.add("Face size 20%");
+		itemType = menu.add(mDetectorName[mDetectorType]);
 
 		return true;
 	}
@@ -219,18 +212,18 @@ public class FdActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.i(TAG, "Menu Item selected " + item);
-		if (item == mItemFace50)
-			mView.setMinFaceSize(0.5f);
-		else if (item == mItemFace40)
-			mView.setMinFaceSize(0.4f);
-		else if (item == mItemFace30)
-			mView.setMinFaceSize(0.3f);
-		else if (item == mItemFace20)
-			mView.setMinFaceSize(0.2f);
-		else if (item == mItemType) {
+		if (item == itemFace50)
+			view.setMinFaceSize(0.5f);
+		else if (item == itemFace40)
+			view.setMinFaceSize(0.4f);
+		else if (item == itemFace30)
+			view.setMinFaceSize(0.3f);
+		else if (item == itemFace20)
+			view.setMinFaceSize(0.2f);
+		else if (item == itemType) {
 			mDetectorType = (mDetectorType + 1) % mDetectorName.length;
 			item.setTitle(mDetectorName[mDetectorType]);
-			mView.setDetectorType(mDetectorType);
+			view.setDetectorType(mDetectorType);
 		}
 		return true;
 	}

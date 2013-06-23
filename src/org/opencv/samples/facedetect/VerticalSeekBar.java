@@ -10,6 +10,7 @@ import android.widget.SeekBar;
  * Vertical Seekbar component rozsireni widgetu SeekBar pro vertikalni pouziti
  */
 
+//todo Remove when final imgproc param has been chosen.
 public class VerticalSeekBar extends SeekBar {
 
 	public VerticalSeekBar(Context context) {

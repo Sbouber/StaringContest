@@ -15,28 +15,28 @@ import android.view.SurfaceView;
 
 public abstract class SampleCvViewBase extends SurfaceView implements
 		SurfaceHolder.Callback, Runnable {
-	private static final String TAG = "Sample::SurfaceView";
+	private static final String TAG = "SurfaceView";
 
-	private SurfaceHolder mHolder;
-	private VideoCapture mCamera;
-	private FpsMeter mFps;
+	private SurfaceHolder holder;
+	private VideoCapture camera;
+	private FpsMeter fpsMeter;
 
 	public SampleCvViewBase(Context context) {
 		super(context);
-		mHolder = getHolder();
-		mHolder.addCallback(this);
-		mFps = new FpsMeter();
-		Log.i(TAG, "Instantiated new " + this.getClass());
+		holder = getHolder();
+		holder.addCallback(this);
+		fpsMeter = new FpsMeter();
 	}
 
 	public boolean openCamera() {
 		Log.i(TAG, "openCamera");
 		synchronized (this) {
 			releaseCamera();
-			mCamera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
-			if (!mCamera.isOpened()) {
-				mCamera.release();
-				mCamera = null;
+            // Use front camera
+			camera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
+			if (!camera.isOpened()) {
+				camera.release();
+				camera = null;
 				Log.e(TAG, "Failed to open native camera");
 				return false;
 			}
@@ -47,9 +47,9 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 	public void releaseCamera() {
 		Log.i(TAG, "releaseCamera");
 		synchronized (this) {
-			if (mCamera != null) {
-				mCamera.release();
-				mCamera = null;
+			if (camera != null) {
+				camera.release();
+				camera = null;
 			}
 		}
 	}
@@ -57,25 +57,24 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 	public void setupCamera(int width, int height) {
 		Log.i(TAG, "setupCamera(" + width + ", " + height + ")");
 		synchronized (this) {
-			if (mCamera != null && mCamera.isOpened()) {
-				List<Size> sizes = mCamera.getSupportedPreviewSizes();
+			if (camera != null && camera.isOpened()) {
+				List<Size> sizes = camera.getSupportedPreviewSizes();
 				int mFrameWidth = width;
 				int mFrameHeight = height;
 
+                //todo We could select a smaller size, might get a higher fps.
 				// selecting optimal camera preview size
-				{
-					double minDiff = Double.MAX_VALUE;
-					for (Size size : sizes) {
-						if (Math.abs(size.height - height) < minDiff) {
-							mFrameWidth = (int) size.width;
-							mFrameHeight = (int) size.height;
-							minDiff = Math.abs(size.height - height);
-						}
+				double minDiff = Double.MAX_VALUE;
+				for (Size size : sizes) {
+					if (Math.abs(size.height - height) < minDiff) {
+						mFrameWidth = (int) size.width;
+						mFrameHeight = (int) size.height;
+						minDiff = Math.abs(size.height - height);
 					}
 				}
 
-				mCamera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH, mFrameWidth);
-				mCamera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT, mFrameHeight);
+				camera.set(Highgui.CV_CAP_PROP_FRAME_WIDTH, mFrameWidth);
+				camera.set(Highgui.CV_CAP_PROP_FRAME_HEIGHT, mFrameHeight);
 			}
 		}
 
@@ -101,34 +100,33 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	public void run() {
 		Log.i(TAG, "Starting processing thread");
-		mFps.init();
+		fpsMeter.init();
 
 		while (true) {
 			Bitmap bmp = null;
 
 			synchronized (this) {
-				if (mCamera == null)
+				if (camera == null)
 					break;
 
-				if (!mCamera.grab()) {
+				if (!camera.grab()) {
 					Log.e(TAG, "mCamera.grab() failed");
 					break;
 				}
 
-				bmp = processFrame(mCamera);
+				bmp = processFrame(camera);
 
-				mFps.measure();
+				fpsMeter.measure();
 			}
 
 			if (bmp != null) {
-				Canvas canvas = mHolder.lockCanvas();
+				Canvas canvas = holder.lockCanvas();
 				if (canvas != null) {
 					canvas.drawBitmap(bmp,
 							(canvas.getWidth() - bmp.getWidth()) / 2,
 							(canvas.getHeight() - bmp.getHeight()) / 2, null);
-					// mFps.draw(canvas, (canvas.getWidth() - bmp.getWidth()) /
-					// 2, 0);
-					mHolder.unlockCanvasAndPost(canvas);
+					fpsMeter.draw(canvas, (canvas.getWidth() - bmp.getWidth()) / 2, 0);
+					holder.unlockCanvasAndPost(canvas);
 				}
 				bmp.recycle();
 			}

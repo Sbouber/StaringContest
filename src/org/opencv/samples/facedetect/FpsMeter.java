@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 
+//todo Replace with org.opencv.android.FPSMeter
 public class FpsMeter {
 	private static final String TAG = "Sample::FpsMeter";
 	int step;
