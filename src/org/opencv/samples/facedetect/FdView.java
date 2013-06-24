@@ -229,42 +229,42 @@ class FdView extends SampleCvViewBase {
                 Scalar green = new Scalar( 0, 255, 0, 255 );
                 Scalar blue      = new Scalar( 0, 0, 255, 255 );
                 
+                Scalar pink		= new Scalar( 224,27,162, 255);
+                Scalar orange	= new Scalar( 224,162,27, 255);
+                
                 Core.rectangle(mGray, face.tl(), face.br(), green, 3);
                 Core.rectangle(mRgba, face.tl(), face.br(), green, 3);
                 
                 int x           = face.x + face.width / 8;
                 int y           = (int) (face.y + (face.height / 4.5));
-                int width       = face.width - 2 * face.width / 8;
+                int width       = (face.width - 2 * face.width / 8 );
                 int height  	= (int) (face.height / 3.0);
                 
                 eyearea = new Rect(x + 10 ,y ,width - 10 ,height);
                 
                 Core.rectangle(mRgba, eyearea.tl(), eyearea.br(), blue, 2);
-                
                 /*
-                 * Determine Right eye rectangle
+                 * Determine Left eye rectangle
                  */
-                x               = face.x + face.width / 16;
+                x               = (face.x + face.width / 16) + 50;
                 y               = (int) (face.y + (face.height / 4.5));
-                width   		= (face.width - 2 * face.width / 16) / 2;
+                width   		= ((face.width - 2 * face.width / 16) / 2) - 50;
                 height  		= (int) (face.height / 3.0);
                 
                 Rect eyearea_right = new Rect(x, y, width, height );
                 
                 /*
-                 * Determine Left eye right angle
+                 * Determine Right eye angle
                  */
-                x               = face.x + face.width / 16 + (face.width - 2 * face.width / 16) / 2;
+                x               = (face.x + face.width / 16 + (face.width - 2 * face.width / 16) / 2);
                 y               = (int) (face.y + (face.height / 4.5));
-                width   		= (face.width - 2 * face.width / 16) / 2;
+                width   		= ( (face.width - 2 * face.width / 16) / 2 ) - 50;
                 height  		= (int) (face.height / 3.0);
                 
                 Rect eyearea_left = new Rect(x, y, width, height);
                 
-                Core.rectangle(mRgba, eyearea_left.tl(), eyearea_left.br(),
-                                new Scalar(244, 27, 175, 255), 2);
-                Core.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),
-                                new Scalar(27, 244, 221, 255), 2);
+                Core.rectangle(mRgba, eyearea_left.tl(), eyearea_left.br(),pink, 2);
+                Core.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),orange, 2);
 
 				if (learn_frames < max_learn_frames) {
 					teplateR = get_template(mCascadeER, eyearea_right, 24);
