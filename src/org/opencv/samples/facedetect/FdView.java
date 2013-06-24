@@ -27,6 +27,23 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 class FdView extends SampleCvViewBase {
+	private static final String TAG = "Sample::FdView";
+	
+	private Mat mRgba;
+	private Mat mGray;
+	private Mat mZoomCorner;
+	private Mat mZoomWindow;
+	private Mat mZoomWindow2;
+	private Mat mResult;
+	private Mat teplateR;
+	private Mat teplateL;
+	private File mCascadeFile;
+	private CascadeClassifier mJavaDetector;
+	private CascadeClassifier mCascadeER;
+	private CascadeClassifier mCascadeEL;
+	private DetectionBasedTracker mNativeDetector;
+
+	private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
 
 	public static final int JAVA_DETECTOR = 0;
 	public static final int NATIVE_DETECTOR = 1;
@@ -38,58 +55,41 @@ class FdView extends SampleCvViewBase {
 	private static final int TM_CCORR = 4;
 	private static final int TM_CCORR_NORMED = 5;
 
-	private static final String TAG = "FdView";
-	private static final String CASCADE_DIR = "cascade";
-	private static final String CASCADE_FILENAME = "tmp.xml";
-	private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
+	private int mDetectorType = JAVA_DETECTOR;
 
-	private Mat rgba;
-	private Mat gray;
-	private Mat result;
-	private Mat teplateR;
-	private Mat teplateL;
-	private File cascadeFile;
-	private CascadeClassifier javaDetector;
-	private CascadeClassifier cascadeER;
-	private CascadeClassifier cascadeEL;
-	// TODO: Compare native and javadetector, this option is somewhere in the
-	// menu.
-	private DetectionBasedTracker nativeDetector;
-
-	private int detectorType = JAVA_DETECTOR;
-
-	private float relativeFaceSize = 0;
-	private int absoluteFaceSize = 0;
-	private int learnFrames = 0;
-	private static final int MAX_LEARN_FRAMES = 5;
-	private int refreshTemplateCounter = 0;
-	private double matchValue;
-	private Rect eyeArea = new Rect();
-
-	private MinMaxLocResult oldPosLeft;
-	private MinMaxLocResult oldPosRight;
+	private float mRelativeFaceSize = 0;
+	private int mAbsoluteFaceSize = 0;
+	private int learn_frames = 0;
+	private int max_learn_frames = 5;
+	private double match_value;
+	
+	public int thresholdLeft = 0;
+	public int thresholdRight = 0;
+	private int esd 	 = 0;
+	
+	private Rect eyearea = new Rect();
 
 	public void setMinFaceSize(float faceSize) {
-		relativeFaceSize = faceSize;
-		absoluteFaceSize = 0;
+		mRelativeFaceSize = faceSize;
+		mAbsoluteFaceSize = 0;
 	}
 
 	public void setDetectorType(int type) {
-		if (detectorType != type) {
-			detectorType = type;
+		if (mDetectorType != type) {
+			mDetectorType = type;
 
 			if (type == NATIVE_DETECTOR) {
 				Log.i(TAG, "Detection Based Tracker enabled");
-				nativeDetector.start();
+				mNativeDetector.start();
 			} else {
 				Log.i(TAG, "Cascade detector enabled");
-				nativeDetector.stop();
+				mNativeDetector.stop();
 			}
 		}
 	}
 
-	public void resetLearnFramesCount() {
-		learnFrames = 0;
+	public void resetLearFramesCount() {
+		learn_frames = 0;
 	}
 
 	public FdView(Context context) {
@@ -98,10 +98,9 @@ class FdView extends SampleCvViewBase {
 		try {
 			InputStream is = context.getResources().openRawResource(
 					R.raw.lbpcascade_frontalface);
-
 			File cascadeDir = context.getDir("cascade", Context.MODE_PRIVATE);
-			cascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
-			FileOutputStream os = new FileOutputStream(cascadeFile);
+			mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+			FileOutputStream os = new FileOutputStream(mCascadeFile);
 
 			byte[] buffer = new byte[4096];
 			int bytesRead;
@@ -150,21 +149,23 @@ class FdView extends SampleCvViewBase {
 
 			// ------------------------------------------------------------------------------------------------------
 
-			javaDetector = new CascadeClassifier(cascadeFile.getAbsolutePath());
-			cascadeER = new CascadeClassifier(cascadeFileER.getAbsolutePath());
-			cascadeEL = new CascadeClassifier(cascadeFileER.getAbsolutePath());
-			if (javaDetector.empty() || cascadeER.empty() || cascadeEL.empty()) {
+			mJavaDetector = new CascadeClassifier(
+					mCascadeFile.getAbsolutePath());
+			mCascadeER = new CascadeClassifier(cascadeFileER.getAbsolutePath());
+			mCascadeEL = new CascadeClassifier(cascadeFileER.getAbsolutePath());
+			if (mJavaDetector.empty() || mCascadeER.empty()
+					|| mCascadeEL.empty()) {
 				Log.e(TAG, "Failed to load cascade classifier");
-				javaDetector = null;
-				cascadeER = null;
-				cascadeEL = null;
+				mJavaDetector = null;
+				mCascadeER = null;
+				mCascadeEL = null;
 			} else
 				Log.i(TAG,
 						"Loaded cascade classifier from "
-								+ cascadeFile.getAbsolutePath());
+								+ mCascadeFile.getAbsolutePath());
 
-			nativeDetector = new DetectionBasedTracker(
-					cascadeFile.getAbsolutePath(), 0);
+			mNativeDetector = new DetectionBasedTracker(
+					mCascadeFile.getAbsolutePath(), 0);
 
 			cascadeDir.delete();
 			cascadeFileER.delete();
@@ -178,19 +179,12 @@ class FdView extends SampleCvViewBase {
 		}
 	}
 
-	private CascadeClassifier loadCascade(int resourceId) {
-		// We need to write our resource to a file first
-		// since CascadeClassifier takes a filename...
-		// TODO: write resource to file -> load classifier from file
-		return null;
-	}
-
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		synchronized (this) {
 			// initialize Mats before usage
-			gray = new Mat();
-			rgba = new Mat();
+			mGray = new Mat();
+			mRgba = new Mat();
 		}
 
 		super.surfaceCreated(holder);
@@ -198,283 +192,163 @@ class FdView extends SampleCvViewBase {
 
 	@Override
 	protected Bitmap processFrame(VideoCapture capture) {
-		capture.retrieve(rgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
-		capture.retrieve(gray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
+		capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+		capture.retrieve(mGray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
 
-		if (absoluteFaceSize == 0) {
-			int height = gray.rows();
+		if (mAbsoluteFaceSize == 0) {
+			int height = mGray.rows();
 
-			if ((int) (height * relativeFaceSize + 0.5) > 0) {
-				absoluteFaceSize = (int) (height * relativeFaceSize + 0.5);
+			if ((int) (height * mRelativeFaceSize + 0.5) > 0) {
+				mAbsoluteFaceSize = (int) (height * mRelativeFaceSize + 0.5);
 			}
 
-			nativeDetector.setMinFaceSize(absoluteFaceSize);
+			mNativeDetector.setMinFaceSize(mAbsoluteFaceSize);
 		}
 
 		MatOfRect faces = new MatOfRect();
 
-		if (detectorType == JAVA_DETECTOR) {
-			if (javaDetector != null)
-				javaDetector.detectMultiScale(gray, faces, 1.1, 2,
+		if (mDetectorType == JAVA_DETECTOR) {
+			if (mJavaDetector != null)
+				mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2,
 						2 // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-						, new Size(absoluteFaceSize, absoluteFaceSize),
+						, new Size(mAbsoluteFaceSize, mAbsoluteFaceSize),
 						new Size());
-			
+
+			if (mZoomCorner == null || mZoomWindow == null)
+				CreateAuxiliaryMats();
+
 			Rect[] facesArray = faces.toArray();
 
-			// TODO: test this
-			if (facesArray.length > 0) {
-				int largest = 0;
-				double maxArea = 0;
-	
-				for (int i = 0; i < facesArray.length; i++) {
-					if (facesArray[i].area() > maxArea) {
-						largest = i;
-						maxArea = facesArray[i].area();
-					}
-				}
-	
-				// Get face frame
-				Rect r = facesArray[largest];
-	
-				Scalar red = new Scalar(255, 0, 0, 255);
-				Scalar green = new Scalar(0, 255, 0, 255);
-				Scalar blue = new Scalar(0, 0, 255, 255);
-	
-				Core.rectangle(gray, r.tl(), r.br(), green, 3);
-				Core.rectangle(rgba, r.tl(), r.br(), green, 3);
-	
-				int x = r.x + r.width / 8;
-				int y = (int) (r.y + (r.height / 4.5));
-				int width = r.width - 2 * r.width / 8;
-				int height = (int) (r.height / 3.0);
-	
-				eyeArea = new Rect(x, y, width, height);
-	
-				Core.rectangle(rgba, eyeArea.tl(), eyeArea.br(), blue, 2);
-	
-				/* Determine Right eye rectangle */
-				x = r.x + r.width / 16;
-				y = (int) (r.y + (r.height / 4.5));
-				width = (r.width - 2 * r.width / 16) / 2;
-				height = (int) (r.height / 3.0);
-	
-				Rect eyearea_right = new Rect(x, y, width, height);
-	
-				/* Determine Left eye right rectangle */
-				x = r.x + r.width / 16 + (r.width - 2 * r.width / 16) / 2;
-				y = (int) (r.y + (r.height / 4.5));
-				width = (r.width - 2 * r.width / 16) / 2;
-				height = (int) (r.height / 3.0);
-	
-				Rect eyearea_left = new Rect(x, y, width, height);
-	
-				Core.rectangle(rgba, eyearea_left.tl(), eyearea_left.br(),
-						new Scalar(244, 27, 175, 255), 2);
-				Core.rectangle(rgba, eyearea_right.tl(), eyearea_right.br(),
-						new Scalar(27, 244, 221, 255), 2);
-	
-				if (learnFrames < MAX_LEARN_FRAMES) {
-					teplateR = get_template(cascadeER, eyearea_right, 24);
-					teplateL = get_template(cascadeEL, eyearea_left, 24);
-	
-					learnFrames++;
-	
+			for (int i = 0; i < facesArray.length; i++) {
+				/*
+                 * Get face rectangle
+                 */
+                Rect face = facesArray[i];
+                
+                Scalar red       = new Scalar( 255, 0, 0, 255 );
+                Scalar green = new Scalar( 0, 255, 0, 255 );
+                Scalar blue      = new Scalar( 0, 0, 255, 255 );
+                
+                Core.rectangle(mGray, face.tl(), face.br(), green, 3);
+                Core.rectangle(mRgba, face.tl(), face.br(), green, 3);
+                
+                int x           = face.x + face.width / 8;
+                int y           = (int) (face.y + (face.height / 4.5));
+                int width       = face.width - 2 * face.width / 8;
+                int height  	= (int) (face.height / 3.0);
+                
+                eyearea = new Rect(x + 10 ,y ,width - 10 ,height);
+                
+                Core.rectangle(mRgba, eyearea.tl(), eyearea.br(), blue, 2);
+                
+                /*
+                 * Determine Right eye rectangle
+                 */
+                x               = face.x + face.width / 16;
+                y               = (int) (face.y + (face.height / 4.5));
+                width   		= (face.width - 2 * face.width / 16) / 2;
+                height  		= (int) (face.height / 3.0);
+                
+                Rect eyearea_right = new Rect(x, y, width, height );
+                
+                /*
+                 * Determine Left eye right angle
+                 */
+                x               = face.x + face.width / 16 + (face.width - 2 * face.width / 16) / 2;
+                y               = (int) (face.y + (face.height / 4.5));
+                width   		= (face.width - 2 * face.width / 16) / 2;
+                height  		= (int) (face.height / 3.0);
+                
+                Rect eyearea_left = new Rect(x, y, width, height);
+                
+                Core.rectangle(mRgba, eyearea_left.tl(), eyearea_left.br(),
+                                new Scalar(244, 27, 175, 255), 2);
+                Core.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),
+                                new Scalar(27, 244, 221, 255), 2);
+
+				if (learn_frames < max_learn_frames) {
+					teplateR = get_template(mCascadeER, eyearea_right, 24);
+					teplateL = get_template(mCascadeEL, eyearea_left, 24);
+					learn_frames++;
 				} else {
-					matchValue = match_eye(eyearea_right, teplateR,
+					match_value = match_eye(eyearea_right, teplateR,
 							FdActivity.method);
-	
-					matchValue = match_eye(eyearea_left, teplateL,
-							FdActivity.method);
-	
-					// Blink detection attempt 1
-	
-					// Mat leftEyeGray = gray.submat(eyearea_left);
-					// Mat rightEyeGray = gray.submat(eyearea_right);
-					// MinMaxLocResult resultLeft = Core.minMaxLoc(leftEyeGray);
-					// MinMaxLocResult resultRight =
-					// Core.minMaxLoc(rightEyeGray);
-					//
-					// Scalar meanL = Core.mean(leftEyeGray);
-					// Scalar meanR = Core.mean(rightEyeGray);
-					//
-					// Log.e(TAG, "meanL: " + meanL + " dl: " +
-					// resultLeft.minVal
-					// + " lp: " + resultLeft.minLoc + " olp: " + oldPosLeft
-					// + //
-					// "meanR" + meanR + "dr: " + resultRight.minVal + " rp: "
-					// + resultRight.minLoc + " olr: " + oldPosRight);
-					//
-					// if (oldPosLeft != null && oldPosRight != null) {
-					//
-					// Point oldPosLeftPoint = oldPosLeft.minLoc;
-					// Point posLeftPoint = resultLeft.minLoc;
-					//
-					// Point oldPosRightPoint = oldPosLeft.minLoc;
-					// Point posRightPoint = resultLeft.minLoc;
-					//
-					// double distanceL = Math
-					// .sqrt((oldPosLeftPoint.x - posLeftPoint.x)
-					// * (oldPosLeftPoint.x - posLeftPoint.x)
-					// + (oldPosLeftPoint.y - posLeftPoint.y)
-					// * (oldPosLeftPoint.y - posLeftPoint.y));
-					// double distanceR = Math
-					// .sqrt((oldPosRightPoint.x - posRightPoint.x)
-					// * (oldPosRightPoint.x - posRightPoint.x)
-					// + (oldPosRightPoint.y - posRightPoint.y)
-					// * (oldPosRightPoint.y - posRightPoint.y));
-					//
-					// int offset = 30;
-					//
-					// if (distanceL > offset && distanceR > offset) {
-					// Log.e(TAG, "Blink");
-					// }
-					// }
-					//
-					// oldPosLeft = resultLeft;
-					// oldPosRight = resultRight;
-	
-					refreshTemplateCounter++;
-					refreshTemplateCounter = refreshTemplateCounter % 20;
-	
-					if (refreshTemplateCounter >= 19)
-						learnFrames = 0;
-				}
-			}
-		} else if (detectorType == NATIVE_DETECTOR) {
-			if (nativeDetector != null)
-				nativeDetector.detect(gray, faces);
-			
-			Rect[] facesArray = faces.toArray();
 
-			/* TODO: Add eye detection for native method. */
-			if (facesArray.length > 0) {
-				int largest = 0;
-				double maxArea = 0;
-	
-				for (int i = 0; i < facesArray.length; i++) {
-					if (facesArray[i].area() > maxArea) {
-						largest = i;
-						maxArea = facesArray[i].area();
-					}
+					match_value = match_eye(eyearea_left, teplateL,
+							FdActivity.method);
 				}
-	
-				// Get face frame
-				Rect r = facesArray[largest];
-	
-				Scalar red = new Scalar(255, 0, 0, 255);
-				Scalar green = new Scalar(0, 255, 0, 255);
-				Scalar blue = new Scalar(0, 0, 255, 255);
-	
-				Core.rectangle(gray, r.tl(), r.br(), green, 3);
-				Core.rectangle(rgba, r.tl(), r.br(), green, 3);
-	
-				int x = r.x + r.width / 8;
-				int y = (int) (r.y + (r.height / 4.5));
-				int width = r.width - 2 * r.width / 8;
-				int height = (int) (r.height / 3.0);
-	
-				eyeArea = new Rect(x, y, width, height);
-	
-				Core.rectangle(rgba, eyeArea.tl(), eyeArea.br(), blue, 2);
-	
-				/* Determine Right eye rectangle */
-				x = r.x + r.width / 16;
-				y = (int) (r.y + (r.height / 4.5));
-				width = (r.width - 2 * r.width / 16) / 2;
-				height = (int) (r.height / 3.0);
-	
-				Rect eyearea_right = new Rect(x, y, width, height);
-	
-				/* Determine Left eye right rectangle */
-				x = r.x + r.width / 16 + (r.width - 2 * r.width / 16) / 2;
-				y = (int) (r.y + (r.height / 4.5));
-				width = (r.width - 2 * r.width / 16) / 2;
-				height = (int) (r.height / 3.0);
-	
-				Rect eyearea_left = new Rect(x, y, width, height);
-	
-				Core.rectangle(rgba, eyearea_left.tl(), eyearea_left.br(),
-						new Scalar(244, 27, 175, 255), 2);
-				Core.rectangle(rgba, eyearea_right.tl(), eyearea_right.br(),
-						new Scalar(27, 244, 221, 255), 2);
 				
-				if (learnFrames < MAX_LEARN_FRAMES) {
-					teplateR = get_template(cascadeER, eyearea_right, 24);
-					teplateL = get_template(cascadeEL, eyearea_left, 24);
-	
-					learnFrames++;
-	
-				} else {
-					matchValue = match_eye(eyearea_right, teplateR,
-							FdActivity.method);
-	
-					matchValue = match_eye(eyearea_left, teplateL,
-							FdActivity.method);
-	
-					// Blink detection attempt 1
-	
-					// Mat leftEyeGray = gray.submat(eyearea_left);
-					// Mat rightEyeGray = gray.submat(eyearea_right);
-					// MinMaxLocResult resultLeft = Core.minMaxLoc(leftEyeGray);
-					// MinMaxLocResult resultRight =
-					// Core.minMaxLoc(rightEyeGray);
-					//
-					// Scalar meanL = Core.mean(leftEyeGray);
-					// Scalar meanR = Core.mean(rightEyeGray);
-					//
-					// Log.e(TAG, "meanL: " + meanL + " dl: " +
-					// resultLeft.minVal
-					// + " lp: " + resultLeft.minLoc + " olp: " + oldPosLeft
-					// + //
-					// "meanR" + meanR + "dr: " + resultRight.minVal + " rp: "
-					// + resultRight.minLoc + " olr: " + oldPosRight);
-					//
-					// if (oldPosLeft != null && oldPosRight != null) {
-					//
-					// Point oldPosLeftPoint = oldPosLeft.minLoc;
-					// Point posLeftPoint = resultLeft.minLoc;
-					//
-					// Point oldPosRightPoint = oldPosLeft.minLoc;
-					// Point posRightPoint = resultLeft.minLoc;
-					//
-					// double distanceL = Math
-					// .sqrt((oldPosLeftPoint.x - posLeftPoint.x)
-					// * (oldPosLeftPoint.x - posLeftPoint.x)
-					// + (oldPosLeftPoint.y - posLeftPoint.y)
-					// * (oldPosLeftPoint.y - posLeftPoint.y));
-					// double distanceR = Math
-					// .sqrt((oldPosRightPoint.x - posRightPoint.x)
-					// * (oldPosRightPoint.x - posRightPoint.x)
-					// + (oldPosRightPoint.y - posRightPoint.y)
-					// * (oldPosRightPoint.y - posRightPoint.y));
-					//
-					// int offset = 30;
-					//
-					// if (distanceL > offset && distanceR > offset) {
-					// Log.e(TAG, "Blink");
-					// }
-					// }
-					//
-					// oldPosLeft = resultLeft;
-					// oldPosRight = resultRight;
-	
-					refreshTemplateCounter++;
-					refreshTemplateCounter = refreshTemplateCounter % 20;
-	
-					if (refreshTemplateCounter >= 19)
-						learnFrames = 0;
+				Mat leftEyeGray	 = mGray.submat( eyearea_left );
+				Mat rightEyeGray = mGray.submat( eyearea_right );
+				
+				/*
+				 * Find Left eye threshold
+				 */
+				try {
+					
+					Imgproc.threshold(leftEyeGray, leftEyeGray, thresholdLeft, 255, Imgproc.THRESH_BINARY);
+					Imgproc.medianBlur(leftEyeGray, leftEyeGray, 11 );
+					
+					double min = Core.minMaxLoc( leftEyeGray ).minVal;
+					
+					if( min > 0 ) {
+						thresholdLeft++;
+					}
+					
+				} 
+				catch( Exception e ) {
+					Log.e( TAG, "error: " + e.getMessage());
 				}
+				
+				/*
+				 * Find right eye threshold
+				 */
+				try {
+					
+					Imgproc.threshold(rightEyeGray, rightEyeGray, thresholdLeft, 255, Imgproc.THRESH_BINARY);
+					Imgproc.medianBlur(rightEyeGray, rightEyeGray, 11 );
+					
+					double min = Core.minMaxLoc( rightEyeGray ).minVal;
+					
+					if( min > 0 ) {
+						thresholdRight++;
+					}
+					
+				} 
+				catch( Exception e ) {
+					Log.e( TAG, "error: " + e.getMessage());
+				}
+				
+				/*
+				 * Convert back to RGBA
+				 */
+				Imgproc.cvtColor(leftEyeGray, leftEyeGray, Imgproc.COLOR_GRAY2BGRA);
+				Imgproc.cvtColor(rightEyeGray, rightEyeGray, Imgproc.COLOR_GRAY2BGRA);
+				
+				Imgproc.resize(leftEyeGray, mZoomWindow,
+						mZoomWindow.size());
+				
+				Imgproc.resize(rightEyeGray, mZoomWindow2,
+						mZoomWindow2.size());
+
 			}
+		} else if (mDetectorType == NATIVE_DETECTOR) {
+			if (mNativeDetector != null)
+				mNativeDetector.detect(mGray, faces);
 		} else {
 			Log.e(TAG, "Detection method is not selected!");
 		}
 
-		Bitmap bmp = Bitmap.createBitmap(rgba.cols(), rgba.rows(),
+		Rect[] facesArray = faces.toArray();
+		for (int i = 0; i < facesArray.length; i++)
+			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
+					FACE_RECT_COLOR, 3);
+
+		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),
 				Bitmap.Config.ARGB_8888);
 
 		try {
-			Utils.matToBitmap(rgba, bmp);
+			Utils.matToBitmap(mRgba, bmp);
 		} catch (Exception e) {
 			Log.e(TAG,
 					"Utils.matToBitmap() throws an exception: "
@@ -486,56 +360,57 @@ class FdView extends SampleCvViewBase {
 		return bmp;
 	}
 
+	private void CreateAuxiliaryMats() {
+		if (mGray.empty())
+			return;
+
+		int rows = mGray.rows();
+		int cols = mGray.cols();
+
+		if (mZoomWindow == null) {
+			mZoomWindow = mRgba.submat(rows / 2 + rows / 10, rows, cols / 2
+					+ cols / 10, cols);
+			mZoomWindow2 = mRgba.submat(0, rows / 2 - rows / 10, cols / 2
+					+ cols / 10, cols);
+		}
+
+	}
+
 	private double match_eye(Rect area, Mat mTemplate, int type) {
 		Point matchLoc;
-		Mat mROI = gray.submat(area);
-		int result_cols = gray.cols() - mTemplate.cols() + 1;
-		int result_rows = gray.rows() - mTemplate.rows() + 1;
-		
+		Mat mROI = mGray.submat(area);
+		int result_cols = mGray.cols() - mTemplate.cols() + 1;
+		int result_rows = mGray.rows() - mTemplate.rows() + 1;
 		if (mTemplate.cols() == 0 || mTemplate.rows() == 0) {
 			return 0.0;
 		}
-
-		// TODO: 32F check from http://www.gidforums.com/t-26905.html
-		// result = new Mat(result_cols, result_rows, CvType.CV_32FC1);
-		result = new Mat(result_cols, result_rows, CvType.CV_32F);
+		mResult = new Mat(result_cols, result_rows, CvType.CV_32FC1);
 
 		switch (type) {
 		case TM_SQDIFF:
-			Imgproc.matchTemplate(mROI, mTemplate, result, Imgproc.TM_SQDIFF);
+			Imgproc.matchTemplate(mROI, mTemplate, mResult, Imgproc.TM_SQDIFF);
 			break;
 		case TM_SQDIFF_NORMED:
-			Imgproc.matchTemplate(mROI, mTemplate, result,
+			Imgproc.matchTemplate(mROI, mTemplate, mResult,
 					Imgproc.TM_SQDIFF_NORMED);
 			break;
 		case TM_CCOEFF:
-			Imgproc.matchTemplate(mROI, mTemplate, result, Imgproc.TM_CCOEFF);
+			Imgproc.matchTemplate(mROI, mTemplate, mResult, Imgproc.TM_CCOEFF);
 			break;
 		case TM_CCOEFF_NORMED:
-			Imgproc.matchTemplate(mROI, mTemplate, result,
+			Imgproc.matchTemplate(mROI, mTemplate, mResult,
 					Imgproc.TM_CCOEFF_NORMED);
 			break;
 		case TM_CCORR:
-			Imgproc.matchTemplate(mROI, mTemplate, result, Imgproc.TM_CCORR);
+			Imgproc.matchTemplate(mROI, mTemplate, mResult, Imgproc.TM_CCORR);
 			break;
 		case TM_CCORR_NORMED:
-			Imgproc.matchTemplate(mROI, mTemplate, result,
+			Imgproc.matchTemplate(mROI, mTemplate, mResult,
 					Imgproc.TM_CCORR_NORMED);
 			break;
-		default:
-			break;
 		}
 
-		Core.MinMaxLocResult mmres = Core.minMaxLoc(result);
-		
-		// Blink detection attempt 2
-		if (type == TM_CCOEFF_NORMED) {
-			Log.e(TAG, "mmres.maxVal = " + mmres.maxVal);
-
-			if (mmres.maxVal >= 0.78 && mmres.maxVal <= 0.89) {
-				Log.e(TAG, "You better blinked bitch!");
-			}
-		}
+		Core.MinMaxLocResult mmres = Core.minMaxLoc(mResult);
 
 		if (type == TM_SQDIFF || type == TM_SQDIFF_NORMED) {
 			matchLoc = mmres.minLoc;
@@ -547,7 +422,7 @@ class FdView extends SampleCvViewBase {
 		Point matchLoc_ty = new Point(matchLoc.x + mTemplate.cols() + area.x,
 				matchLoc.y + mTemplate.rows() + area.y);
 
-		Core.rectangle(rgba, matchLoc_tx, matchLoc_ty, new Scalar(255, 255, 0,
+		Core.rectangle(mRgba, matchLoc_tx, matchLoc_ty, new Scalar(255, 255, 0,
 				255));
 
 		if (type == TM_SQDIFF || type == TM_SQDIFF_NORMED) {
@@ -560,7 +435,7 @@ class FdView extends SampleCvViewBase {
 
 	private Mat get_template(CascadeClassifier clasificator, Rect area, int size) {
 		Mat template = new Mat();
-		Mat mROI = gray.submat(area);
+		Mat mROI = mGray.submat(area);
 		MatOfRect eyes = new MatOfRect();
 		Point iris = new Point();
 		Rect eye_template = new Rect();
@@ -570,7 +445,6 @@ class FdView extends SampleCvViewBase {
 				new Size());
 
 		Rect[] eyesArray = eyes.toArray();
-		
 		for (int i = 0; i < eyesArray.length; i++) {
 			Rect e = eyesArray[i];
 			e.x = area.x + e.x;
@@ -578,8 +452,8 @@ class FdView extends SampleCvViewBase {
 			Rect eye_only_rectangle = new Rect((int) e.tl().x,
 					(int) (e.tl().y + e.height * 0.4), (int) e.width,
 					(int) (e.height * 0.6));
-			mROI = gray.submat(eye_only_rectangle);
-			Mat vyrez = rgba.submat(eye_only_rectangle);
+			mROI = mGray.submat(eye_only_rectangle);
+			Mat vyrez = mRgba.submat(eye_only_rectangle);
 			Core.MinMaxLocResult mmG = Core.minMaxLoc(mROI);
 
 			Core.circle(vyrez, mmG.minLoc, 2, new Scalar(255, 255, 255, 255), 2);
@@ -587,12 +461,11 @@ class FdView extends SampleCvViewBase {
 			iris.y = mmG.minLoc.y + eye_only_rectangle.y;
 			eye_template = new Rect((int) iris.x - size / 2, (int) iris.y
 					- size / 2, size, size);
-			Core.rectangle(rgba, eye_template.tl(), eye_template.br(),
+			Core.rectangle(mRgba, eye_template.tl(), eye_template.br(),
 					new Scalar(255, 0, 0, 255), 2);
-			template = (gray.submat(eye_template)).clone();
+			template = (mGray.submat(eye_template)).clone();
 			return template;
 		}
-		
 		return template;
 	}
 
@@ -602,18 +475,18 @@ class FdView extends SampleCvViewBase {
 
 		synchronized (this) {
 			// Explicitly deallocate Mats
-			if (rgba != null)
-				rgba.release();
-			if (gray != null)
-				gray.release();
-			if (cascadeFile != null)
-				cascadeFile.delete();
-			if (nativeDetector != null)
-				nativeDetector.release();
+			if (mRgba != null)
+				mRgba.release();
+			if (mGray != null)
+				mGray.release();
+			if (mCascadeFile != null)
+				mCascadeFile.delete();
+			if (mNativeDetector != null)
+				mNativeDetector.release();
 
-			rgba = null;
-			gray = null;
-			cascadeFile = null;
+			mRgba = null;
+			mGray = null;
+			mCascadeFile = null;
 		}
 	}
 }

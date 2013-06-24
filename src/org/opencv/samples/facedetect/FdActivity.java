@@ -13,13 +13,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 public class FdActivity extends Activity {
 	private static final String TAG = "Activity";
@@ -62,7 +62,7 @@ public class FdActivity extends Activity {
 							public void onProgressChanged(SeekBar seekBar,
 									int progress, boolean fromUser) {
 								method = progress;
-
+							
 								switch (method) {
 								case 0:
 									matchingMethod.setText("TM_SQDIFF");
@@ -111,7 +111,9 @@ public class FdActivity extends Activity {
 
 				btn.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
-						view.resetLearnFramesCount();
+//						view.resetLearnFramesCount();
+						
+						
 					}
 				});
 

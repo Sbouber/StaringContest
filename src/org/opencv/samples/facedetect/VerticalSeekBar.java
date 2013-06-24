@@ -11,6 +11,8 @@ import android.widget.SeekBar;
 // TODO: Remove when final imgproc param has been chosen.
 public class VerticalSeekBar extends SeekBar {
 
+	public int value;
+	
 	public VerticalSeekBar(Context context) {
 		super(context);
 	}
@@ -48,6 +50,8 @@ public class VerticalSeekBar extends SeekBar {
 			return false;
 		}
 
+		value = this.getProgress();
+		
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 		case MotionEvent.ACTION_MOVE:
