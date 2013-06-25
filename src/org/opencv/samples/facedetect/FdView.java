@@ -67,6 +67,15 @@ class FdView extends SampleCvViewBase {
 	public int thresholdRight = 0;
 	private int esd 	 = 0;
 	
+	private Double leftMean = -1.0;
+	private Double rightMean = -1.0;
+	private Double oldLeftMean = -1.0;
+	private Double oldRightMean = -1.0;
+	private boolean alreadyBlinked = false;
+	private int blinkCount = 0;
+	private Rect face = null;
+	
+	
 	private Rect eyearea = new Rect();
 
 	public void setMinFaceSize(float faceSize) {
@@ -218,54 +227,63 @@ class FdView extends SampleCvViewBase {
 				CreateAuxiliaryMats();
 
 			Rect[] facesArray = faces.toArray();
-
+			
+			double area  = 0.0;
+			
 			for (int i = 0; i < facesArray.length; i++) {
+				
+				if( facesArray[ i ].area() > area ) {
+					area = facesArray[ i ].area();
+					face = facesArray[ i ];
+				}
+			
+			}
+		
+			if( face != null ) {
 				/*
-                 * Get face rectangle
-                 */
-                Rect face = facesArray[i];
-                
-                Scalar red       = new Scalar( 255, 0, 0, 255 );
-                Scalar green = new Scalar( 0, 255, 0, 255 );
-                Scalar blue      = new Scalar( 0, 0, 255, 255 );
-                
-                Scalar pink		= new Scalar( 224,27,162, 255);
-                Scalar orange	= new Scalar( 224,162,27, 255);
-                
-                Core.rectangle(mGray, face.tl(), face.br(), green, 3);
-                Core.rectangle(mRgba, face.tl(), face.br(), green, 3);
-                
-                int x           = face.x + face.width / 8;
-                int y           = (int) (face.y + (face.height / 4.5));
-                int width       = (face.width - 2 * face.width / 8 );
-                int height  	= (int) (face.height / 3.0);
-                
-                eyearea = new Rect(x + 10 ,y ,width - 10 ,height);
-                
-                Core.rectangle(mRgba, eyearea.tl(), eyearea.br(), blue, 2);
-                /*
-                 * Determine Left eye rectangle
-                 */
-                x               = (face.x + face.width / 16) + 50;
-                y               = (int) (face.y + (face.height / 4.5));
-                width   		= ((face.width - 2 * face.width / 16) / 2) - 50;
-                height  		= (int) (face.height / 3.0);
-                
-                Rect eyearea_right = new Rect(x, y, width, height );
-                
-                /*
-                 * Determine Right eye angle
-                 */
-                x               = (face.x + face.width / 16 + (face.width - 2 * face.width / 16) / 2);
-                y               = (int) (face.y + (face.height / 4.5));
-                width   		= ( (face.width - 2 * face.width / 16) / 2 ) - 50;
-                height  		= (int) (face.height / 3.0);
-                
-                Rect eyearea_left = new Rect(x, y, width, height);
-                
-                Core.rectangle(mRgba, eyearea_left.tl(), eyearea_left.br(),pink, 2);
-                Core.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),orange, 2);
-
+		         * Get face rectangle
+		         */
+		        Scalar red       = new Scalar( 255, 0, 0, 255 );
+		        Scalar green 	 = new Scalar( 0, 255, 0, 255 );
+		        Scalar blue      = new Scalar( 0, 0, 255, 255 );
+		        
+		        Scalar pink		= new Scalar( 224,27,162, 255);
+		        Scalar orange	= new Scalar( 224,162,27, 255);
+		        
+		        Core.rectangle(mGray, face.tl(), face.br(), green, 3);
+		        Core.rectangle(mRgba, face.tl(), face.br(), green, 3);
+		        
+		        int x           = face.x + face.width / 8;
+		        int y           = (int) (face.y + (face.height / 4.5));
+		        int width       = (face.width - 2 * face.width / 8 );
+		        int height  	= (int) (face.height / 3.0);
+		        
+		        eyearea = new Rect(x + 10 ,y ,width - 10 ,height);
+		        
+		        Core.rectangle(mRgba, eyearea.tl(), eyearea.br(), blue, 2);
+		        /*
+		         * Determine Left eye rectangle
+		         */
+		        x               = (face.x + face.width / 16) + 50;
+		        y               = (int) (face.y + (face.height / 4.5));
+		        width   		= ((face.width - 2 * face.width / 16) / 2) - 50;
+		        height  		= (int) (face.height / 3.0);
+		        
+		        Rect eyearea_right = new Rect(x, y, width, height );
+		        
+		        /*
+		         * Determine Right eye angle
+		         */
+		        x               = (face.x + face.width / 16 + (face.width - 2 * face.width / 16) / 2);
+		        y               = (int) (face.y + (face.height / 4.5));
+		        width   		= ( (face.width - 2 * face.width / 16) / 2 ) - 50;
+		        height  		= (int) (face.height / 3.0);
+		        
+		        Rect eyearea_left = new Rect(x, y, width, height);
+		        
+		        Core.rectangle(mRgba, eyearea_left.tl(), eyearea_left.br(),pink, 2);
+		        Core.rectangle(mRgba, eyearea_right.tl(), eyearea_right.br(),orange, 2);
+		
 				if (learn_frames < max_learn_frames) {
 					teplateR = get_template(mCascadeER, eyearea_right, 24);
 					teplateL = get_template(mCascadeEL, eyearea_left, 24);
@@ -273,7 +291,7 @@ class FdView extends SampleCvViewBase {
 				} else {
 					match_value = match_eye(eyearea_right, teplateR,
 							FdActivity.method);
-
+		
 					match_value = match_eye(eyearea_left, teplateL,
 							FdActivity.method);
 				}
@@ -281,68 +299,103 @@ class FdView extends SampleCvViewBase {
 				Mat leftEyeGray	 = mGray.submat( eyearea_left );
 				Mat rightEyeGray = mGray.submat( eyearea_right );
 				
+				
 				/*
 				 * Find Left eye threshold
 				 */
 				try {
-					
+		
 					Imgproc.threshold(leftEyeGray, leftEyeGray, thresholdLeft, 255, Imgproc.THRESH_BINARY);
 					Imgproc.medianBlur(leftEyeGray, leftEyeGray, 11 );
-					
+		
 					double min = Core.minMaxLoc( leftEyeGray ).minVal;
+					leftMean   = Core.mean( leftEyeGray ).val[ 0 ];
 					
+				
+		
 					if( min > 0 ) {
 						thresholdLeft++;
 					}
-					
-				} 
+		
+				}
 				catch( Exception e ) {
 					Log.e( TAG, "error: " + e.getMessage());
 				}
-				
+		
 				/*
-				 * Find right eye threshold
-				 */
+				* Find right eye threshold
+				*/
 				try {
-					
+		
 					Imgproc.threshold(rightEyeGray, rightEyeGray, thresholdLeft, 255, Imgproc.THRESH_BINARY);
 					Imgproc.medianBlur(rightEyeGray, rightEyeGray, 11 );
-					
+		
 					double min = Core.minMaxLoc( rightEyeGray ).minVal;
-					
+					rightMean   = Core.mean( leftEyeGray ).val[ 0 ];
+		
 					if( min > 0 ) {
 						thresholdRight++;
 					}
-					
-				} 
+		
+				}
 				catch( Exception e ) {
 					Log.e( TAG, "error: " + e.getMessage());
 				}
 				
-				/*
-				 * Convert back to RGBA
-				 */
-				Imgproc.cvtColor(leftEyeGray, leftEyeGray, Imgproc.COLOR_GRAY2BGRA);
-				Imgproc.cvtColor(rightEyeGray, rightEyeGray, Imgproc.COLOR_GRAY2BGRA);
+				int minThreshold = 5;
+				int minDeviation = 2;
 				
-				Imgproc.resize(leftEyeGray, mZoomWindow,
-						mZoomWindow.size());
+				if( oldRightMean > 0 && oldLeftMean > 0 && thresholdLeft > minThreshold && thresholdRight > minThreshold ) {
+					
+					double totalOld = ( oldRightMean + oldLeftMean ) / 2;
+					double totalNew = ( leftMean + rightMean ) / 2;
+					
+					if( Math.abs( totalOld - totalNew ) > minDeviation )  {
+						
+						if( !alreadyBlinked ) {
+							Log.e( TAG, "["+ blinkCount + "]blink");
+							alreadyBlinked = true;
+							blinkCount++;
+						} else {
+							alreadyBlinked = false;
+						}
+					}
+				}
 				
-				Imgproc.resize(rightEyeGray, mZoomWindow2,
-						mZoomWindow2.size());
-
+				oldLeftMean  = leftMean;
+				oldRightMean = rightMean;
+		
+		//		Log.e( TAG, "meanl " + leftMean + " meanR: " + rightMean + " total mean: " + ( rightMean + leftMean ) / 2 );
+				
+				try {
+					/*
+					* Convert back to RGBA
+					*/
+					Imgproc.cvtColor(leftEyeGray, leftEyeGray, Imgproc.COLOR_GRAY2BGRA);
+					Imgproc.cvtColor(rightEyeGray, rightEyeGray, Imgproc.COLOR_GRAY2BGRA);
+		
+//					Imgproc.resize(leftEyeGray, mZoomWindow,
+//					mZoomWindow.size());
+//		
+//					Imgproc.resize(rightEyeGray, mZoomWindow2,
+//					mZoomWindow2.size());
+				} catch( Exception e ) {
+					Log.e( TAG, "error cv: " + e.getLocalizedMessage() );
+				}
 			}
-		} else if (mDetectorType == NATIVE_DETECTOR) {
+
+		}
+		else if (mDetectorType == NATIVE_DETECTOR) {
 			if (mNativeDetector != null)
 				mNativeDetector.detect(mGray, faces);
 		} else {
 			Log.e(TAG, "Detection method is not selected!");
 		}
 
-		Rect[] facesArray = faces.toArray();
-		for (int i = 0; i < facesArray.length; i++)
-			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
-					FACE_RECT_COLOR, 3);
+//		Rect[] facesArray = faces.toArray();
+//		for (int i = 0; i < facesArray.length; i++)
+//			Core.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(),
+//					FACE_RECT_COLOR, 3);
 
 		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),
 				Bitmap.Config.ARGB_8888);
@@ -359,6 +412,8 @@ class FdView extends SampleCvViewBase {
 
 		return bmp;
 	}
+	
+	
 
 	private void CreateAuxiliaryMats() {
 		if (mGray.empty())
