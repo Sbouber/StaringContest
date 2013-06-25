@@ -74,7 +74,8 @@ class FdView extends SampleCvViewBase {
 	private boolean alreadyBlinked = false;
 	private int blinkCount = 0;
 	private Rect face = null;
-	
+	private int faceEmptyCount = 0;
+	private Scalar color = new Scalar( 0, 255, 0, 255 );
 	
 	private Rect eyearea = new Rect();
 
@@ -227,9 +228,23 @@ class FdView extends SampleCvViewBase {
 				CreateAuxiliaryMats();
 
 			Rect[] facesArray = faces.toArray();
-			
+			/*
+			 * No faces found, reset threshold
+			 */
+			if( facesArray.length == 0 ) {	
+				faceEmptyCount++;
+				if( faceEmptyCount > 50 ) {
+					thresholdLeft  = 0;
+					thresholdRight = 0;
+					faceEmptyCount = 0;
+					color 		   = new Scalar( 0, 255, 0, 255 );
+				}
+			}
+		
 			double area  = 0.0;
-			
+			/*
+			 * Find largest face area
+			 */
 			for (int i = 0; i < facesArray.length; i++) {
 				
 				if( facesArray[ i ].area() > area ) {
@@ -238,20 +253,26 @@ class FdView extends SampleCvViewBase {
 				}
 			
 			}
-		
+			/*
+			 * Face found
+			 */
 			if( face != null ) {
+				int minThreshold = 5;
+				int minDeviation = 2;
+				
 				/*
 		         * Get face rectangle
 		         */
 		        Scalar red       = new Scalar( 255, 0, 0, 255 );
-		        Scalar green 	 = new Scalar( 0, 255, 0, 255 );
 		        Scalar blue      = new Scalar( 0, 0, 255, 255 );
 		        
 		        Scalar pink		= new Scalar( 224,27,162, 255);
 		        Scalar orange	= new Scalar( 224,162,27, 255);
 		        
-		        Core.rectangle(mGray, face.tl(), face.br(), green, 3);
-		        Core.rectangle(mRgba, face.tl(), face.br(), green, 3);
+		        
+		        Core.rectangle(mGray, face.tl(), face.br(), color, 3);
+		        Core.rectangle(mRgba, face.tl(), face.br(), color, 3);
+		        	
 		        
 		        int x           = face.x + face.width / 8;
 		        int y           = (int) (face.y + (face.height / 4.5));
@@ -336,14 +357,16 @@ class FdView extends SampleCvViewBase {
 					if( min > 0 ) {
 						thresholdRight++;
 					}
+					else if( min <= 0 ) {
+						
+						color = new Scalar( 255, 0, 0, 255 );
+						
+					}
 		
 				}
 				catch( Exception e ) {
 					Log.e( TAG, "error: " + e.getMessage());
 				}
-				
-				int minThreshold = 5;
-				int minDeviation = 2;
 				
 				if( oldRightMean > 0 && oldLeftMean > 0 && thresholdLeft > minThreshold && thresholdRight > minThreshold ) {
 					
@@ -374,15 +397,17 @@ class FdView extends SampleCvViewBase {
 					Imgproc.cvtColor(leftEyeGray, leftEyeGray, Imgproc.COLOR_GRAY2BGRA);
 					Imgproc.cvtColor(rightEyeGray, rightEyeGray, Imgproc.COLOR_GRAY2BGRA);
 		
-//					Imgproc.resize(leftEyeGray, mZoomWindow,
-//					mZoomWindow.size());
-//		
-//					Imgproc.resize(rightEyeGray, mZoomWindow2,
-//					mZoomWindow2.size());
+					Imgproc.resize(leftEyeGray, mZoomWindow,
+					mZoomWindow.size());
+		
+					Imgproc.resize(rightEyeGray, mZoomWindow2,
+					mZoomWindow2.size());
 				} catch( Exception e ) {
 					Log.e( TAG, "error cv: " + e.getLocalizedMessage() );
 				}
 			}
+			
+			face = null;
 
 		}
 		else if (mDetectorType == NATIVE_DETECTOR) {
