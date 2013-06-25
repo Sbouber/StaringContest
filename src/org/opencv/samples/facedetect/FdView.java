@@ -75,7 +75,7 @@ class FdView extends SampleCvViewBase {
 	private int blinkCount = 0;
 	private Rect face = null;
 	private int faceEmptyCount = 0;
-	private Scalar color = new Scalar( 0, 255, 0, 255 );
+	private Scalar color = new Scalar( 255, 0, 0, 255 );
 	
 	private Rect eyearea = new Rect();
 
@@ -237,7 +237,7 @@ class FdView extends SampleCvViewBase {
 					thresholdLeft  = 0;
 					thresholdRight = 0;
 					faceEmptyCount = 0;
-					color 		   = new Scalar( 0, 255, 0, 255 );
+					color 		   = new Scalar( 255, 0, 0, 255 );
 				}
 			}
 		
@@ -321,45 +321,46 @@ class FdView extends SampleCvViewBase {
 				Mat rightEyeGray = mGray.submat( eyearea_right );
 				
 				
-				/*
-				 * Find Left eye threshold
-				 */
+				
 				try {
-		
+					/*
+					 * Find Left eye threshold
+					 */
 					Imgproc.threshold(leftEyeGray, leftEyeGray, thresholdLeft, 255, Imgproc.THRESH_BINARY);
 					Imgproc.medianBlur(leftEyeGray, leftEyeGray, 11 );
 		
-					double min = Core.minMaxLoc( leftEyeGray ).minVal;
-					leftMean   = Core.mean( leftEyeGray ).val[ 0 ];
+					double minLeft = Core.minMaxLoc( leftEyeGray ).minVal;
+					leftMean   	   = Core.mean( leftEyeGray ).val[ 0 ];
 					
-				
-		
-					if( min > 0 ) {
-						thresholdLeft++;
-					}
-		
-				}
-				catch( Exception e ) {
-					Log.e( TAG, "error: " + e.getMessage());
-				}
-		
-				/*
-				* Find right eye threshold
-				*/
-				try {
-		
+					/*
+					 * Find Right eye threshold
+					 */
 					Imgproc.threshold(rightEyeGray, rightEyeGray, thresholdLeft, 255, Imgproc.THRESH_BINARY);
 					Imgproc.medianBlur(rightEyeGray, rightEyeGray, 11 );
 		
-					double min = Core.minMaxLoc( rightEyeGray ).minVal;
+					double minRight = Core.minMaxLoc( rightEyeGray ).minVal;
 					rightMean   = Core.mean( leftEyeGray ).val[ 0 ];
-		
-					if( min > 0 ) {
+					
+					/*
+					 * No dark color found, increase threshold
+					 */
+					if( minRight > 0 ) {
 						thresholdRight++;
 					}
-					else if( min <= 0 ) {
+					
+					/*
+					 * No dark color found, increase threshold
+					 */
+					if( minLeft > 0 ) {
+						thresholdLeft++;
+					}
+					
+					/*
+					 * Left and right eye found, calibration complete
+					 */
+					if( minRight <= 0 && minLeft <= 0 ) {
 						
-						color = new Scalar( 255, 0, 0, 255 );
+						color = new Scalar( 0, 255, 0, 255 );
 						
 					}
 		
@@ -367,7 +368,11 @@ class FdView extends SampleCvViewBase {
 				catch( Exception e ) {
 					Log.e( TAG, "error: " + e.getMessage());
 				}
+		
 				
+				/*
+				 * Blink detection
+				 */
 				if( oldRightMean > 0 && oldLeftMean > 0 && thresholdLeft > minThreshold && thresholdRight > minThreshold ) {
 					
 					double totalOld = ( oldRightMean + oldLeftMean ) / 2;
