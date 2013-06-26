@@ -49,7 +49,6 @@ class FdView extends SampleCvViewBase {
 
 	public int thresholdLeft = 0;
 	public int thresholdRight = 0;
-
 	private Double leftMean = -1.0;
 	private Double rightMean = -1.0;
 	private Double oldLeftMean = -1.0;
@@ -93,11 +92,11 @@ class FdView extends SampleCvViewBase {
 
 			byte[] buffer = new byte[4096];
 			int bytesRead;
-
+			
 			while ((bytesRead = is.read(buffer)) != -1) {
 				os.write(buffer, 0, bytesRead);
 			}
-
+			
 			is.close();
 			os.close();
 
@@ -179,17 +178,16 @@ class FdView extends SampleCvViewBase {
 			 */
 			if (facesArray.length == 0) {
 				faceEmptyCount++;
-
-				if (faceEmptyCount > 50) {
-					thresholdLeft = 0;
+				
+				if( faceEmptyCount > 50 ) {
+					thresholdLeft  = 0;
 					thresholdRight = 0;
 					faceEmptyCount = 0;
 					color = new Scalar(255, 0, 0, 255);
 				}
 			}
 
-			double area = 0.0;
-
+			double area  = 0.0;
 			/*
 			 * Find largest face area
 			 */
@@ -342,6 +340,11 @@ class FdView extends SampleCvViewBase {
 			}
 
 			face = null;
+		} else if (mDetectorType == NATIVE_DETECTOR) {
+			if (mNativeDetector != null)
+				mNativeDetector.detect(mGray, faces);
+		} else {
+			Log.e(TAG, "Detection method is not selected!");
 		}
 
 		Bitmap bmp = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(),
