@@ -19,5 +19,6 @@
     <string name="send_name">Submit name</string>
     <string name="edit_message">Enter name</string>
     <string name="reset_highscores">Reset Highscores</string>
+    <string name="title_activity_teset">Teset</string>
 
 </resources>

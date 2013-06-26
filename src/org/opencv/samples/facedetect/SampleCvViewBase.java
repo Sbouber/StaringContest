@@ -3,8 +3,8 @@ package org.opencv.samples.facedetect;
 import java.util.List;
 
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
+import org.opencv.highgui.Highgui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -101,6 +101,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	public void run() {
 		Log.i(TAG, "Starting processing thread");
+		
 		while (true) {
 			Bitmap bmp = null;
 
