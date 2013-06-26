@@ -3,8 +3,8 @@ package org.opencv.samples.facedetect;
 import java.util.List;
 
 import org.opencv.core.Size;
-import org.opencv.highgui.VideoCapture;
 import org.opencv.highgui.Highgui;
+import org.opencv.highgui.VideoCapture;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -5,13 +5,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	 public final static String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+	public final static String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,48 +24,60 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	public void goToSingleplayer(View view) {
 		Intent intent = new Intent(this, FdActivity.class);
-		//EditText editText = (EditText) findViewById(R.id.edit_message);
-		//String message = editText.getText().toString();
-		//intent.putExtra(EXTRA_MESSAGE, message);
+		// EditText editText = (EditText) findViewById(R.id.edit_message);
+		// String message = editText.getText().toString();
+		// intent.putExtra(EXTRA_MESSAGE, message);
 		startActivity(intent);
 	}
-	
+
 	public void goToMultiplayer(View view) {
-		Intent intent = new Intent(this, MultiplayerActivity.class);
-		//EditText editText = (EditText) findViewById(R.id.edit_message);
-		//String message = editText.getText().toString();
-		//intent.putExtra(EXTRA_MESSAGE, message);
-		startActivity(intent);
+		// Intent intent = new Intent(this, MultiplayerActivity.class);
+		// EditText editText = (EditText) findViewById(R.id.edit_message);
+		// String message = editText.getText().toString();
+		// intent.putExtra(EXTRA_MESSAGE, message);
+
+		Toast toast = Toast.makeText(getApplicationContext(),
+				"Multiplayer is not available yet...", Toast.LENGTH_SHORT);
+		toast.show();
+
+		// startActivity(intent);
 	}
-	
+
 	public void goToHighscores(View view) {
-		Intent intent = new Intent(this, HighscoresActivity.class);
-		//EditText editText = (EditText) findViewById(R.id.edit_message);
-		//String message = editText.getText().toString();
-		//intent.putExtra(EXTRA_MESSAGE, message);
-		startActivity(intent);
+		// Intent intent = new Intent(this, HighscoresActivity.class);
+		// EditText editText = (EditText) findViewById(R.id.edit_message);
+		// String message = editText.getText().toString();
+		// intent.putExtra(EXTRA_MESSAGE, message);
+
+		Toast toast = Toast.makeText(getApplicationContext(),
+				"Highscores are not available yet...", Toast.LENGTH_SHORT);
+		toast.show();
+
+		// startActivity(intent);
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-		alertDialog.setMessage("Exit this app")
-               .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                	   Intent startMain = new Intent(Intent.ACTION_MAIN);
-	               		startMain.addCategory(Intent.CATEGORY_HOME);
-	               		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	               		startActivity(startMain);
-                   }
-               })
-               .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                       // User cancelled the dialog
-                   }
-               });
+		alertDialog
+				.setMessage("Exit this app")
+				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						Intent startMain = new Intent(Intent.ACTION_MAIN);
+						startMain.addCategory(Intent.CATEGORY_HOME);
+						startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						startActivity(startMain);
+					}
+				})
+				.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// User cancelled the dialog
+							}
+						});
 		alertDialog.show();
 	}
 
