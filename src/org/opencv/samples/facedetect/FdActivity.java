@@ -17,14 +17,7 @@ import android.widget.RelativeLayout;
 public class FdActivity extends Activity {
 	private static final String TAG = "Activity";
 
-	private MenuItem itemFace50;
-	private MenuItem itemFace40;
-	private MenuItem itemFace30;
-	private MenuItem itemFace20;
-	private MenuItem itemType;
-
 	private FdView view;
-	public static int method = 1;
 
 	private BaseLoaderCallback openCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -70,14 +63,8 @@ public class FdActivity extends Activity {
 		}
 	};
 
-	private int mDetectorType = 0;
-	private String[] mDetectorName;
-
 	public FdActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
-		mDetectorName = new String[2];
-		mDetectorName[FdView.JAVA_DETECTOR] = "Java";
-		mDetectorName[FdView.NATIVE_DETECTOR] = "Native (tracking)";
 	}
 
 	@Override
@@ -121,37 +108,5 @@ public class FdActivity extends Activity {
 				openCVCallBack)) {
 			Log.e(TAG, "Cannot connect to OpenCV Manager");
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.i(TAG, "onCreateOptionsMenu");
-		itemFace50 = menu.add("Face size 50%");
-		itemFace40 = menu.add("Face size 40%");
-		itemFace30 = menu.add("Face size 30%");
-		itemFace20 = menu.add("Face size 20%");
-		itemType = menu.add(mDetectorName[mDetectorType]);
-
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Log.i(TAG, "Menu Item selected " + item);
-		if (item == itemFace50)
-			view.setMinFaceSize(0.5f);
-		else if (item == itemFace40)
-			view.setMinFaceSize(0.4f);
-		else if (item == itemFace30)
-			view.setMinFaceSize(0.3f);
-		else if (item == itemFace20)
-			view.setMinFaceSize(0.2f);
-		else if (item == itemType) {
-			mDetectorType = (mDetectorType + 1) % mDetectorName.length;
-			item.setTitle(mDetectorName[mDetectorType]);
-			view.setDetectorType(mDetectorType);
-		}
-
-		return true;
 	}
 }
