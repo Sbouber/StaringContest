@@ -19,13 +19,11 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	private SurfaceHolder holder;
 	private VideoCapture camera;
-	private FpsMeter fpsMeter;
 
 	public SampleCvViewBase(Context context) {
 		super(context);
 		holder = getHolder();
 		holder.addCallback(this);
-		fpsMeter = new FpsMeter();
 	}
 
 	public boolean openCamera() {
@@ -34,7 +32,6 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 			releaseCamera();
 			/* Use front camera */
 			camera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
-//			camera = new VideoCapture(Highgui.CV_CAP_ANDROID);
 
 			if (!camera.isOpened()) {
 				camera.release();
@@ -104,8 +101,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	public void run() {
 		Log.i(TAG, "Starting processing thread");
-		fpsMeter.init();
-
+		
 		while (true) {
 			Bitmap bmp = null;
 
@@ -119,19 +115,16 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 				}
 
 				bmp = processFrame(camera);
-
-				fpsMeter.measure();
 			}
 
 			if (bmp != null) {
 				Canvas canvas = holder.lockCanvas();
 
 				if (canvas != null) {
+					bmp.prepareToDraw();
 					canvas.drawBitmap(bmp,
 							(canvas.getWidth() - bmp.getWidth()) / 2,
 							(canvas.getHeight() - bmp.getHeight()) / 2, null);
-					fpsMeter.draw(canvas,
-							(canvas.getWidth() - bmp.getWidth()) / 2, 0);
 					holder.unlockCanvasAndPost(canvas);
 				}
 
