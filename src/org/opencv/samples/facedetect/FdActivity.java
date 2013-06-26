@@ -7,18 +7,25 @@ import org.opencv.android.OpenCVLoader;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
 
 public class FdActivity extends Activity {
 	private static final String TAG = "Activity";
 
 	private FdView view;
-
+	
 	private BaseLoaderCallback openCVCallBack = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {

@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 class FdView extends SampleCvViewBase {
+<<<<<<< HEAD
     private static final String TAG = "Sample::FdView";
 
     private static final Scalar RED = new Scalar(255, 0, 0, 255);
