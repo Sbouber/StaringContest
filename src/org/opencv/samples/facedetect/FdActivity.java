@@ -40,6 +40,8 @@ public class FdActivity extends Activity {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i(TAG, "OpenCV loaded successfully");
+				
+				Communication com = new Communication();
 
 				// Load native libs after OpenCV initialization
 				// System.loadLibrary("detection_based_tracker");

@@ -34,6 +34,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 			releaseCamera();
 			/* Use front camera */
 			camera = new VideoCapture(Highgui.CV_CAP_ANDROID + 1);
+//			camera = new VideoCapture(Highgui.CV_CAP_ANDROID);
 
 			if (!camera.isOpened()) {
 				camera.release();

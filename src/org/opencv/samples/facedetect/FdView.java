@@ -392,8 +392,6 @@ class FdView extends SampleCvViewBase {
 				
 				oldLeftMean  = leftMean;
 				oldRightMean = rightMean;
-		
-		//		Log.e( TAG, "meanl " + leftMean + " meanR: " + rightMean + " total mean: " + ( rightMean + leftMean ) / 2 );
 				
 				try {
 					/*
