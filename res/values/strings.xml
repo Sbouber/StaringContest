@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OCV Face Detection</string>
+
+    <string name="app_name">Staring Contest</string>
+    <string name="button_singleplayer">Singleplayer</string>
+    <string name="button_timer">Stop time</string>
+    <string name="button_multiplayer">Multiplayer</string>
+    <string name="button_highscores">Highscores</string>
+    <string name="button_reset">Reset highscores</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_display_message">My Message</string>
+    <string name="title_activity_singleplayer">Tryout</string>
+    <string name="title_activity_multiplayer">Tryout</string>
+    <string name="title_activity_highscores">Highscores</string>
+    <string name="title_activity_new_score">Tryout</string>
+    <string name="title_activity_exit_dialog">ExitDialogActivity</string>
+    <string name="hello_world">beh</string>
+    <string name="send_name">Submit name</string>
+    <string name="edit_message">Enter name</string>
+    <string name="reset_highscores">Reset Highscores</string>
+
 </resources>
