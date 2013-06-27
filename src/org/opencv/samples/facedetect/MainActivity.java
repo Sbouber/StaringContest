@@ -27,21 +27,38 @@ public class MainActivity extends Activity {
 
 	public void goToSingleplayer(View view) {
 		Intent intent = new Intent(this, FdActivity.class);
-		// EditText editText = (EditText) findViewById(R.id.edit_message);
-		// String message = editText.getText().toString();
-		// intent.putExtra(EXTRA_MESSAGE, message);
-		startActivity(intent);
+
+		int numberOfCameras = Camera.getNumberOfCameras();
+	    for (int i = 0; i < numberOfCameras; i++) {
+	    	CameraInfo info = new CameraInfo();
+	    	Camera.getCameraInfo(i, info);
+	    	
+	    	if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+	    		startActivity(intent);
+	    	}
+	    }
+
+        Toast toast = Toast.makeText(getApplicationContext(),
+				"No frontal camera available...", Toast.LENGTH_SHORT);
+		toast.show();
 	}
 
 	public void goToMultiplayer(View view) {
 		// Intent intent = new Intent(this, MultiplayerActivity.class);
-		// EditText editText = (EditText) findViewById(R.id.edit_message);
-		// String message = editText.getText().toString();
-		// intent.putExtra(EXTRA_MESSAGE, message);
 
-		Toast.makeText(getApplicationContext(),
-				"Multiplayer is not available yet...", Toast.LENGTH_SHORT)
-				.show();
+//		int numberOfCameras = Camera.getNumberOfCameras();
+//	    for (int i = 0; i < numberOfCameras; i++) {
+//	    	CameraInfo info = new CameraInfo();
+//	    	Camera.getCameraInfo(i, info);
+//	    	
+//	    	if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+//	    		startActivity(intent);
+//	    	}
+//	    }
+	    
+		Toast toast = Toast.makeText(getApplicationContext(),
+				"Multiplayer is not available yet...", Toast.LENGTH_SHORT);
+		toast.show();
 
 		// startActivity(intent);
 	}
@@ -71,6 +88,11 @@ public class MainActivity extends Activity {
 							}
 						});
 		alertDialog.show();
+	}
+
+	public void goToSettings(MenuItem item) {
+		Intent intent = new Intent(this, SettingsActivity.class);
+		startActivity(intent);
 	}
 
 }

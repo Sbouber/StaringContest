@@ -20,5 +20,8 @@
     <string name="edit_message">Enter name</string>
     <string name="reset_highscores">Reset Highscores</string>
     <string name="title_activity_teset">Teset</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="ip_host">Enter IP Host</string>
+    <string name="submit_ip">Submit IP</string>
 
 </resources>
