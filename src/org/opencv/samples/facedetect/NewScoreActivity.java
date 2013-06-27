@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -40,7 +39,6 @@ public class NewScoreActivity extends Activity {
 
 		long score = 0;
 		long newScore = time;
-		String nameEntry = "";
 		String scoreEntry = "";
 
 		/*
@@ -48,7 +46,6 @@ public class NewScoreActivity extends Activity {
 		 * highscore.
 		 */
 		for (int i = 1; i <= 10; i++) {
-			nameEntry = NAME.concat(Integer.toString(i));
 			scoreEntry = SCORE.concat(Integer.toString(i));
 
 			score = myPrefs.getLong(scoreEntry, 0);
@@ -68,19 +65,6 @@ public class NewScoreActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.new_score, menu);
 		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.action_settings:
-			// resetHigh();
-			return super.onOptionsItemSelected(item);
-		default:
-			resetHigh();
-			return true;
-		}
 	}
 
 	public void resetHigh() {
