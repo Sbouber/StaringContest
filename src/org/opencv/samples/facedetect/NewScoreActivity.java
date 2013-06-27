@@ -90,7 +90,7 @@ public class NewScoreActivity extends Activity {
 		SharedPreferences myPrefs = this.getSharedPreferences("myPrefs",
 				MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = myPrefs.edit();
-
+		
 		EditText editText = (EditText) findViewById(R.id.edit_message);
 		String name = editText.getText().toString();
 		long score = highscore;

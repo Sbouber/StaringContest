@@ -50,13 +50,14 @@ class FdView extends SampleCvViewBase {
 	private double rightMean;
 	private double oldLeftMean = -1.0;
 	private double oldRightMean = -1.0;
-	private boolean alreadyBlinked;
+	private boolean allistenerBlinked;
 	private int blinkCount = 0;
 	private int faceEmptyCount;
 	private Scalar color = RED;
 	private boolean enableCountDown = true;
 	private boolean enableBlinkDetection = false;
-	private OnReadyCountDownListener ready;
+	private boolean gameOver = false;
+	private OnReadyCountDownListener listener;
 
 	public FdView(Context context) {
 		super(context);
@@ -233,7 +234,7 @@ class FdView extends SampleCvViewBase {
 						if (enableCountDown) {
 							/* Enable the countdown. */
 							enableCountDown = false;
-							ready.onReady();
+							listener.onReady();
 						}
 					}
 
@@ -250,16 +251,26 @@ class FdView extends SampleCvViewBase {
 					double totalNew = (leftMean + rightMean) / 2;
 
 					if (Math.abs(totalOld - totalNew) > MIN_DEVIATION) {
-						if (!alreadyBlinked) {
+						if (!allistenerBlinked) {
 							blinkCount++;
-							alreadyBlinked = true;
+							allistenerBlinked = true;
 							Log.e(TAG, "blink nr: " + blinkCount);
 
 							Vibrator vibrator = (Vibrator) this.getContext()
 									.getSystemService(Context.VIBRATOR_SERVICE);
 							vibrator.vibrate(300);
+
+							if (blinkCount >= 3) {
+								gameOver = true;
+							}
+
+							if (gameOver) {
+								Log.e(TAG, "FATALITY!!!");
+								// Quit the game and save highscore.
+								listener.onFinish();
+							}
 						} else {
-							alreadyBlinked = false;
+							allistenerBlinked = false;
 						}
 					}
 				}
@@ -280,6 +291,8 @@ class FdView extends SampleCvViewBase {
 				} catch (Exception e) {
 					Log.e(TAG, "error cv: " + e.getLocalizedMessage());
 				}
+			} else {
+				// Game over?
 			}
 		}
 
@@ -299,10 +312,10 @@ class FdView extends SampleCvViewBase {
 		return bmp;
 	}
 
-	public void setListener(OnReadyCountDownListener ready) {
-		this.ready = ready;
+	public void setListener(OnReadyCountDownListener listener) {
+		this.listener = listener;
 	}
-	
+
 	public void startBlinkDetection() {
 		enableBlinkDetection = true;
 	}

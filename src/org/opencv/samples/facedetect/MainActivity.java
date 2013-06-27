@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,40 +28,16 @@ public class MainActivity extends Activity {
 
 	public void goToSingleplayer(View view) {
 		Intent intent = new Intent(this, FdActivity.class);
-
-		int numberOfCameras = Camera.getNumberOfCameras();
-		for (int i = 0; i < numberOfCameras; i++) {
-			CameraInfo info = new CameraInfo();
-			Camera.getCameraInfo(i, info);
-
-			if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
-				startActivity(intent);
-			}
-		}
-
-		Toast toast = Toast.makeText(getApplicationContext(),
-				"No frontal camera available...", Toast.LENGTH_SHORT);
-		toast.show();
+		startActivity(intent);
 	}
 
 	public void goToMultiplayer(View view) {
 		// Intent intent = new Intent(this, MultiplayerActivity.class);
-
-		// int numberOfCameras = Camera.getNumberOfCameras();
-		// for (int i = 0; i < numberOfCameras; i++) {
-		// CameraInfo info = new CameraInfo();
-		// Camera.getCameraInfo(i, info);
-		//
-		// if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
 		// startActivity(intent);
-		// }
-		// }
 
 		Toast toast = Toast.makeText(getApplicationContext(),
 				"Multiplayer is not available yet...", Toast.LENGTH_SHORT);
 		toast.show();
-
-		// startActivity(intent);
 	}
 
 	public void goToHighscores(View view) {

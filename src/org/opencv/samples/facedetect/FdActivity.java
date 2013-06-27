@@ -7,6 +7,7 @@ import org.opencv.android.OpenCVLoader;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -70,6 +71,14 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 			}
 		}
 	};
+
+	public void onFinish() {
+		long finalTime = System.currentTimeMillis() - startTime;
+		view.surfaceDestroyed(view.getHolder());		
+		Intent intent = new Intent(this, NewScoreActivity.class);
+		intent.putExtra(null, finalTime);
+		startActivity(intent);
+	}
 
 	public void onReady() {
 		/* Enable the countdown. */
