@@ -57,6 +57,7 @@ class FdView extends SampleCvViewBase {
 	private boolean enableCountDown = true;
 	private boolean enableBlinkDetection = false;
 	private boolean gameOver = false;
+	private int missedFrames = 0;
 	private OnReadyCountDownListener listener;
 
 	public FdView(Context context) {
@@ -161,6 +162,9 @@ class FdView extends SampleCvViewBase {
 
 			// Face found
 			if (face != null) {
+				/* Reset the missed frames count. */
+				missedFrames = 0;
+
 				Core.rectangle(gray, face.tl(), face.br(), color, 3);
 				Core.rectangle(rgba, face.tl(), face.br(), color, 3);
 
@@ -291,8 +295,13 @@ class FdView extends SampleCvViewBase {
 				} catch (Exception e) {
 					Log.e(TAG, "error cv: " + e.getLocalizedMessage());
 				}
-			} else {
-				// Game over?
+			} else if (enableBlinkDetection) {
+				/* Count the amount of frames we have missed. */
+				missedFrames++;
+
+				if (missedFrames >= 10) {
+					listener.onFinish();
+				}
 			}
 		}
 

@@ -79,21 +79,25 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	}
 
+	@Override
 	public void surfaceChanged(SurfaceHolder _holder, int format, int width,
 			int height) {
 		setupCamera(width, height);
 	}
 
+	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		(new Thread(this)).start();
 	}
 
+	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		releaseCamera();
 	}
 
 	protected abstract Bitmap processFrame(VideoCapture capture);
 
+	@Override
 	public void run() {
 		Log.i(TAG, "Starting processing thread");
 

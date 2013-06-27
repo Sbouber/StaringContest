@@ -31,10 +31,12 @@ public class SingleplayerActivity extends Activity {
 		new CountDownTimer(5000, 100) {
 			TextView textView = (TextView) findViewById(R.id.textView1);
 
+			@Override
 			public void onTick(long millisUntilFinished) {
 				textView.setText("" + ((millisUntilFinished / 1000) + 1));
 			}
 
+			@Override
 			public void onFinish() {
 				textView.setText("Start!");
 
@@ -45,6 +47,7 @@ public class SingleplayerActivity extends Activity {
 					public void run() {
 
 						runOnUiThread(new Runnable() {
+							@Override
 							public void run() {
 								textView.setVisibility(View.INVISIBLE);
 							}

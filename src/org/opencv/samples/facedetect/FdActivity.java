@@ -55,6 +55,7 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 					ad.setCancelable(false); // This blocks the 'BACK' button
 					ad.setMessage("Fatal error: can't open camera!");
 					ad.setButton("OK", new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
 							finish();
@@ -72,14 +73,16 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 		}
 	};
 
+	@Override
 	public void onFinish() {
 		long finalTime = System.currentTimeMillis() - startTime;
-		view.surfaceDestroyed(view.getHolder());		
+		view.surfaceDestroyed(view.getHolder());
 		Intent intent = new Intent(this, NewScoreActivity.class);
 		intent.putExtra(null, finalTime);
 		startActivity(intent);
 	}
 
+	@Override
 	public void onReady() {
 		/* Enable the countdown. */
 		isReady = true;
@@ -144,6 +147,7 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 			ad.setCancelable(false); // This blocks the 'BACK' button
 			ad.setMessage("Fatal error: can't open camera!");
 			ad.setButton("OK", new DialogInterface.OnClickListener() {
+				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.dismiss();
 					finish();

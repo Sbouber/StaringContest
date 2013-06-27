@@ -57,7 +57,6 @@ public class NewScoreActivity extends Activity {
 				break;
 			}
 		}
-
 	}
 
 	@Override
@@ -85,14 +84,29 @@ public class NewScoreActivity extends Activity {
 
 	}
 
+	/* Sanitizes a string for our new score record. */
+	public String sanitize(String s) {
+		String newString = s.replace("\n", "").trim();
+
+		if (newString.length() > 20) {
+			newString = newString.substring(0, 19);
+		}
+
+		return newString;
+	}
+
 	public void sendName(View view) {
 		Intent intent = new Intent(this, HighscoresActivity.class);
 		SharedPreferences myPrefs = this.getSharedPreferences("myPrefs",
 				MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = myPrefs.edit();
-		
+
 		EditText editText = (EditText) findViewById(R.id.edit_message);
 		String name = editText.getText().toString();
+
+		/* Sanitize the name. */
+		name = sanitize(name);
+
 		long score = highscore;
 		String nameEntry = "";
 		String scoreEntry = "";

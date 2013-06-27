@@ -35,9 +35,9 @@ public class MainActivity extends Activity {
 		// Intent intent = new Intent(this, MultiplayerActivity.class);
 		// startActivity(intent);
 
-		Toast toast = Toast.makeText(getApplicationContext(),
-				"Multiplayer is not available yet...", Toast.LENGTH_SHORT);
-		toast.show();
+		Toast.makeText(getApplicationContext(),
+				"Multiplayer is not available yet...", Toast.LENGTH_SHORT)
+				.show();
 	}
 
 	public void goToHighscores(View view) {
@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
 		alertDialog
 				.setMessage("Exit this app")
 				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int id) {
 						Intent startMain = new Intent(Intent.ACTION_MAIN);
 						startMain.addCategory(Intent.CATEGORY_HOME);
@@ -60,6 +61,7 @@ public class MainActivity extends Activity {
 				})
 				.setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
+							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								// User cancelled the dialog
 							}

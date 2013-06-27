@@ -120,6 +120,7 @@ public class HighscoresActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
 	public void onBackPressed() {
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
