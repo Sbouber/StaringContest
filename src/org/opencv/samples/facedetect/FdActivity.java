@@ -14,7 +14,6 @@ import android.widget.RelativeLayout;
 
 public class FdActivity extends Activity {
 	private static final String TAG = "Activity";
-
 	private FdView view;
 
 	private BaseLoaderCallback openCVCallBack = new BaseLoaderCallback(this) {
@@ -58,6 +57,10 @@ public class FdActivity extends Activity {
 			}
 		}
 	};
+
+	public void notifyBlink(int blinkCount) {
+		return;
+	}
 
 	public FdActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());

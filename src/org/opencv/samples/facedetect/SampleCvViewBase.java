@@ -101,7 +101,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	public void run() {
 		Log.i(TAG, "Starting processing thread");
-		
+
 		while (true) {
 			Bitmap bmp = null;
 

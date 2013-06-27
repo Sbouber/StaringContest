@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class SingleplayerActivity extends Activity {
-	
+
 	private long time;
 
 	@Override
@@ -23,56 +23,56 @@ public class SingleplayerActivity extends Activity {
 		setContentView(R.layout.activity_singleplayer);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		
+
 		final Button testButton = (Button) findViewById(R.id.button1);
 		testButton.setVisibility(View.GONE);
-		
+
 		new CountDownTimer(5000, 100) {
 			TextView textView = (TextView) findViewById(R.id.textView1);
 
-		     public void onTick(long millisUntilFinished) {
-		         textView.setText("" + ((millisUntilFinished / 1000) + 1));
-		     }
+			public void onTick(long millisUntilFinished) {
+				textView.setText("" + ((millisUntilFinished / 1000) + 1));
+			}
 
-		     public void onFinish() {
-		    	 textView.setText("Start!");
-		    	 
-		    	 Timer t = new Timer(false);
-		    	
-		    	 t.schedule(new TimerTask() {		    	 
-		    		 @Override
-		    		 public void run() {
-			        	
-		    			 runOnUiThread(new Runnable() {
-		    				 public void run() {
-		    					 textView.setVisibility(View.INVISIBLE);
-		    				 }
-		    			 });
-		    		 }
-		    	 }, 1000);
-		    	
-		        time = System.currentTimeMillis();
-		        stopTime(testButton);
-		     }
+			public void onFinish() {
+				textView.setText("Start!");
+
+				Timer t = new Timer(false);
+
+				t.schedule(new TimerTask() {
+					@Override
+					public void run() {
+
+						runOnUiThread(new Runnable() {
+							public void run() {
+								textView.setVisibility(View.INVISIBLE);
+							}
+						});
+					}
+				}, 1000);
+
+				time = System.currentTimeMillis();
+				stopTime(testButton);
+			}
 		}.start();
 	}
-	
+
 	public void stopTime(Button testButton) {
 		testButton.setVisibility(View.VISIBLE);
-		testButton.setOnClickListener( new View.OnClickListener() {
+		testButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
-			public void onClick (View v) {
-					time = System.currentTimeMillis() - time;
-					sendScore(v);
-			} 
+			public void onClick(View v) {
+				time = System.currentTimeMillis() - time;
+				sendScore(v);
+			}
 		});
 	}
-	
+
 	public void sendScore(View view) {
-	    Intent intent = new Intent(this, NewScoreActivity.class);
-	    intent.putExtra(null, time);
-	    startActivity(intent);
+		Intent intent = new Intent(this, NewScoreActivity.class);
+		intent.putExtra(null, time);
+		startActivity(intent);
 	}
 
 	/**
@@ -102,24 +102,23 @@ public class SingleplayerActivity extends Activity {
 			//
 			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
 			//
-//			NavUtils.navigateUpFromSameTask(this);
+			// NavUtils.navigateUpFromSameTask(this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	/*public void timer(View view) {
-		if (!start) {
-			
-		} else {
-			
-		}
 
-		Intent intent = new Intent(this, SingleplayerActivity.class);
-		//EditText editText = (EditText) findViewById(R.id.edit_message);
-		//String message = editText.getText().toString();
-		//intent.putExtra(EXTRA_MESSAGE, message);
-		startActivity(intent);
-	} */
+	/*
+	 * public void timer(View view) { if (!start) {
+	 * 
+	 * } else {
+	 * 
+	 * }
+	 * 
+	 * Intent intent = new Intent(this, SingleplayerActivity.class); //EditText
+	 * editText = (EditText) findViewById(R.id.edit_message); //String message =
+	 * editText.getText().toString(); //intent.putExtra(EXTRA_MESSAGE, message);
+	 * startActivity(intent); }
+	 */
 
 }

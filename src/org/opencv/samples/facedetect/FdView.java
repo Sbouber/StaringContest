@@ -50,7 +50,7 @@ class FdView extends SampleCvViewBase {
 	private double oldLeftMean = -1.0;
 	private double oldRightMean = -1.0;
 	private boolean alreadyBlinked;
-	private int blinkCount;
+	private int blinkCount = 0;
 	private int faceEmptyCount;
 	private Scalar color = RED;
 
@@ -193,7 +193,6 @@ class FdView extends SampleCvViewBase {
 				Mat rightEyeGray = gray.submat(rightEyeArea);
 
 				try {
-
 					// Find left eye threshold
 					Imgproc.threshold(leftEyeGray, leftEyeGray, thresholdLeft,
 							255, Imgproc.THRESH_BINARY);
@@ -222,9 +221,7 @@ class FdView extends SampleCvViewBase {
 
 					// Left and right eye found, calibration complete
 					if (minRight <= 0 && minLeft <= 0) {
-
 						color = GREEN;
-
 					}
 
 				} catch (Exception e) {
@@ -240,11 +237,10 @@ class FdView extends SampleCvViewBase {
 					double totalNew = (leftMean + rightMean) / 2;
 
 					if (Math.abs(totalOld - totalNew) > MIN_DEVIATION) {
-
 						if (!alreadyBlinked) {
-							Log.e(TAG, "[" + blinkCount + "]blink");
-							alreadyBlinked = true;
 							blinkCount++;
+							alreadyBlinked = true;
+							Log.e(TAG, "blink nr: " + blinkCount);
 						} else {
 							alreadyBlinked = false;
 						}

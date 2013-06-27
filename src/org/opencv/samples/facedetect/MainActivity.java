@@ -47,16 +47,16 @@ public class MainActivity extends Activity {
 	}
 
 	public void goToHighscores(View view) {
-		// Intent intent = new Intent(this, HighscoresActivity.class);
+		Intent intent = new Intent(this, HighscoresActivity.class);
 		// EditText editText = (EditText) findViewById(R.id.edit_message);
 		// String message = editText.getText().toString();
 		// intent.putExtra(EXTRA_MESSAGE, message);
 
-		Toast toast = Toast.makeText(getApplicationContext(),
-				"Highscores are not available yet...", Toast.LENGTH_SHORT);
-		toast.show();
+		// Toast toast = Toast.makeText(getApplicationContext(),
+		// "Highscores are not available yet...", Toast.LENGTH_SHORT);
+		// toast.show();
 
-		// startActivity(intent);
+		startActivity(intent);
 	}
 
 	@Override
