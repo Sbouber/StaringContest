@@ -39,23 +39,15 @@ public class MainActivity extends Activity {
 		// String message = editText.getText().toString();
 		// intent.putExtra(EXTRA_MESSAGE, message);
 
-		Toast toast = Toast.makeText(getApplicationContext(),
-				"Multiplayer is not available yet...", Toast.LENGTH_SHORT);
-		toast.show();
+		Toast.makeText(getApplicationContext(),
+				"Multiplayer is not available yet...", Toast.LENGTH_SHORT)
+				.show();
 
 		// startActivity(intent);
 	}
 
 	public void goToHighscores(View view) {
 		Intent intent = new Intent(this, HighscoresActivity.class);
-		// EditText editText = (EditText) findViewById(R.id.edit_message);
-		// String message = editText.getText().toString();
-		// intent.putExtra(EXTRA_MESSAGE, message);
-
-		// Toast toast = Toast.makeText(getApplicationContext(),
-		// "Highscores are not available yet...", Toast.LENGTH_SHORT);
-		// toast.show();
-
 		startActivity(intent);
 	}
 

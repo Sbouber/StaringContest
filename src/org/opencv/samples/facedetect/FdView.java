@@ -17,6 +17,7 @@ import org.opencv.imgproc.Imgproc;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
@@ -53,6 +54,8 @@ class FdView extends SampleCvViewBase {
 	private int blinkCount = 0;
 	private int faceEmptyCount;
 	private Scalar color = RED;
+	private boolean enableCountDown = true;
+	private OnReadyCountDownListener ready;
 
 	public FdView(Context context) {
 		super(context);
@@ -189,10 +192,13 @@ class FdView extends SampleCvViewBase {
 				Core.rectangle(rgba, rightEyeArea.tl(), rightEyeArea.br(),
 						ORANGE, 2);
 
-				Mat leftEyeGray = gray.submat(leftEyeArea);
-				Mat rightEyeGray = gray.submat(rightEyeArea);
+				Mat leftEyeGray = null;
+				Mat rightEyeGray = null;
 
 				try {
+					leftEyeGray = gray.submat(leftEyeArea);
+					rightEyeGray = gray.submat(rightEyeArea);
+
 					// Find left eye threshold
 					Imgproc.threshold(leftEyeGray, leftEyeGray, thresholdLeft,
 							255, Imgproc.THRESH_BINARY);
@@ -222,6 +228,12 @@ class FdView extends SampleCvViewBase {
 					// Left and right eye found, calibration complete
 					if (minRight <= 0 && minLeft <= 0) {
 						color = GREEN;
+
+						if (enableCountDown) {
+							Log.e(TAG, "Calling onReady()");
+							enableCountDown = false;
+							ready.onReady();
+						}
 					}
 
 				} catch (Exception e) {
@@ -241,6 +253,10 @@ class FdView extends SampleCvViewBase {
 							blinkCount++;
 							alreadyBlinked = true;
 							Log.e(TAG, "blink nr: " + blinkCount);
+
+							Vibrator vibrator = (Vibrator) this.getContext()
+									.getSystemService(Context.VIBRATOR_SERVICE);
+							vibrator.vibrate(300);
 						} else {
 							alreadyBlinked = false;
 						}
@@ -280,6 +296,11 @@ class FdView extends SampleCvViewBase {
 		}
 
 		return bmp;
+	}
+
+	public void setListener(OnReadyCountDownListener ready) {
+		Log.e(TAG, "set ready field");
+		this.ready = ready;
 	}
 
 	private void CreateAuxiliaryMats() {

@@ -15,15 +15,19 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
-public class FdActivity extends Activity {
+public class FdActivity extends Activity implements OnReadyCountDownListener {
 	private static final String TAG = "Activity";
-	private static String countDownText;
+	private static String countDownText = "Wait...";
 	private static Paint paint;
 
+	private static int count = 0;
+
+	private FdActivity thiz = null;
 	private FdView view;
 	private long time;
 
@@ -39,6 +43,7 @@ public class FdActivity extends Activity {
 
 				// Create and set View
 				view = new FdView(mAppContext);
+				view.setListener(thiz);
 
 				RelativeLayout frameLayout = new RelativeLayout(
 						getApplicationContext());
@@ -59,8 +64,6 @@ public class FdActivity extends Activity {
 					});
 					ad.show();
 				}
-
-				countDown();
 			}
 				break;
 			default: {
@@ -71,13 +74,22 @@ public class FdActivity extends Activity {
 		}
 	};
 
+	public void onReady() {
+		Log.e(TAG, "Calling countdown");
+		countDown();
+	}
+
 	public void countDown() {
+		Log.e(TAG, "CountDown called");
+		Looper.prepare();
 		new CountDownTimer(5000, 100) {
 			public void onTick(long millisUntilFinished) {
+				Log.e(TAG, "CountDown tick");
 				countDownText = "" + ((millisUntilFinished / 1000) + 1);
 			}
 
 			public void onFinish() {
+				Log.e(TAG, "CountDown finish");
 				countDownText = "Start!";
 
 				Timer t = new Timer(false);
@@ -85,7 +97,6 @@ public class FdActivity extends Activity {
 				t.schedule(new TimerTask() {
 					@Override
 					public void run() {
-
 						runOnUiThread(new Runnable() {
 							public void run() {
 								countDownText = "";
@@ -97,6 +108,8 @@ public class FdActivity extends Activity {
 				time = System.currentTimeMillis();
 			}
 		}.start();
+		Log.e(TAG, "CountDown() return");
+		Looper.loop();
 	}
 
 	static void draw(Canvas canvas) {
@@ -109,6 +122,8 @@ public class FdActivity extends Activity {
 		int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint
 				.ascent()) / 2));
 
+		// canvas.drawText(countDownText.concat("" + count++), xPos, yPos,
+		// paint);
 		canvas.drawText(countDownText, xPos, yPos, paint);
 	}
 
@@ -118,6 +133,7 @@ public class FdActivity extends Activity {
 
 	public FdActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
+		this.thiz = this;
 	}
 
 	@Override
