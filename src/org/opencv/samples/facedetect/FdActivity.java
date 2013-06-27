@@ -1,5 +1,8 @@
 package org.opencv.samples.facedetect;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -7,14 +10,22 @@ import org.opencv.android.OpenCVLoader;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
 public class FdActivity extends Activity {
 	private static final String TAG = "Activity";
+	private static String countDownText;
+	private static Paint paint;
+
 	private FdView view;
+	private long time;
 
 	private BaseLoaderCallback openCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -48,6 +59,8 @@ public class FdActivity extends Activity {
 					});
 					ad.show();
 				}
+
+				countDown();
 			}
 				break;
 			default: {
@@ -57,6 +70,47 @@ public class FdActivity extends Activity {
 			}
 		}
 	};
+
+	public void countDown() {
+		new CountDownTimer(5000, 100) {
+			public void onTick(long millisUntilFinished) {
+				countDownText = "" + ((millisUntilFinished / 1000) + 1);
+			}
+
+			public void onFinish() {
+				countDownText = "Start!";
+
+				Timer t = new Timer(false);
+
+				t.schedule(new TimerTask() {
+					@Override
+					public void run() {
+
+						runOnUiThread(new Runnable() {
+							public void run() {
+								countDownText = "";
+							}
+						});
+					}
+				}, 1000);
+
+				time = System.currentTimeMillis();
+			}
+		}.start();
+	}
+
+	static void draw(Canvas canvas) {
+		paint = new Paint();
+		paint.setColor(Color.RED);
+		paint.setTextSize(100);
+
+		int xPos = (int) ((canvas.getWidth() - paint.getTextSize()
+				* Math.abs(countDownText.length() / 2)) / 2);
+		int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint
+				.ascent()) / 2));
+
+		canvas.drawText(countDownText, xPos, yPos, paint);
+	}
 
 	public void notifyBlink(int blinkCount) {
 		return;

@@ -125,6 +125,7 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 					canvas.drawBitmap(bmp,
 							(canvas.getWidth() - bmp.getWidth()) / 2,
 							(canvas.getHeight() - bmp.getHeight()) / 2, null);
+					FdActivity.draw(canvas);
 					holder.unlockCanvasAndPost(canvas);
 				}
 
