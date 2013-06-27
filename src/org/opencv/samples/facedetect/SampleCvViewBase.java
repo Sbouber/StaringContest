@@ -27,7 +27,6 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 	}
 
 	public boolean openCamera() {
-		Log.i(TAG, "openCamera");
 		synchronized (this) {
 			releaseCamera();
 			/* Use front camera */
@@ -45,7 +44,6 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 	}
 
 	public void releaseCamera() {
-		Log.i(TAG, "releaseCamera");
 		synchronized (this) {
 			if (camera != null) {
 				camera.release();
@@ -83,17 +81,14 @@ public abstract class SampleCvViewBase extends SurfaceView implements
 
 	public void surfaceChanged(SurfaceHolder _holder, int format, int width,
 			int height) {
-		Log.i(TAG, "surfaceChanged");
 		setupCamera(width, height);
 	}
 
 	public void surfaceCreated(SurfaceHolder holder) {
-		Log.i(TAG, "surfaceCreated");
 		(new Thread(this)).start();
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		Log.i(TAG, "surfaceDestroyed");
 		releaseCamera();
 	}
 

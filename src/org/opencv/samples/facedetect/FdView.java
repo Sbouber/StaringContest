@@ -55,6 +55,7 @@ class FdView extends SampleCvViewBase {
 	private int faceEmptyCount;
 	private Scalar color = RED;
 	private boolean enableCountDown = true;
+	private boolean enableBlinkDetection = false;
 	private OnReadyCountDownListener ready;
 
 	public FdView(Context context) {
@@ -230,7 +231,7 @@ class FdView extends SampleCvViewBase {
 						color = GREEN;
 
 						if (enableCountDown) {
-							Log.e(TAG, "Calling onReady()");
+							/* Enable the countdown. */
 							enableCountDown = false;
 							ready.onReady();
 						}
@@ -241,7 +242,7 @@ class FdView extends SampleCvViewBase {
 				}
 
 				// Blink detection
-				if (oldRightMean > 0 && oldLeftMean > 0
+				if (enableBlinkDetection && oldRightMean > 0 && oldLeftMean > 0
 						&& thresholdLeft > MIN_THRESHOLD
 						&& thresholdRight > MIN_THRESHOLD) {
 
@@ -299,8 +300,11 @@ class FdView extends SampleCvViewBase {
 	}
 
 	public void setListener(OnReadyCountDownListener ready) {
-		Log.e(TAG, "set ready field");
 		this.ready = ready;
+	}
+	
+	public void startBlinkDetection() {
+		enableBlinkDetection = true;
 	}
 
 	private void CreateAuxiliaryMats() {

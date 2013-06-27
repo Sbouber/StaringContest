@@ -1,8 +1,5 @@
 package org.opencv.samples.facedetect;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -14,8 +11,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Window;
 import android.widget.RelativeLayout;
@@ -25,11 +20,13 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 	private static String countDownText = "Wait...";
 	private static Paint paint;
 
-	private static int count = 0;
+	private static boolean isReady = false;
+	private static boolean stopCounter = false;
+	private static long startTime = 0;
+	private static long time = 0;
+	private static FdView view = null;
 
 	private FdActivity thiz = null;
-	private FdView view;
-	private long time;
 
 	private BaseLoaderCallback openCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -75,41 +72,8 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 	};
 
 	public void onReady() {
-		Log.e(TAG, "Calling countdown");
-		countDown();
-	}
-
-	public void countDown() {
-		Log.e(TAG, "CountDown called");
-		Looper.prepare();
-		new CountDownTimer(5000, 100) {
-			public void onTick(long millisUntilFinished) {
-				Log.e(TAG, "CountDown tick");
-				countDownText = "" + ((millisUntilFinished / 1000) + 1);
-			}
-
-			public void onFinish() {
-				Log.e(TAG, "CountDown finish");
-				countDownText = "Start!";
-
-				Timer t = new Timer(false);
-
-				t.schedule(new TimerTask() {
-					@Override
-					public void run() {
-						runOnUiThread(new Runnable() {
-							public void run() {
-								countDownText = "";
-							}
-						});
-					}
-				}, 1000);
-
-				time = System.currentTimeMillis();
-			}
-		}.start();
-		Log.e(TAG, "CountDown() return");
-		Looper.loop();
+		/* Enable the countdown. */
+		isReady = true;
 	}
 
 	static void draw(Canvas canvas) {
@@ -117,13 +81,32 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 		paint.setColor(Color.RED);
 		paint.setTextSize(100);
 
+		if (isReady && !stopCounter) {
+			/* Start the countdown..." */
+			if (time == 0) {
+				time = System.currentTimeMillis();
+			}
+
+			/* Calculate the countdown timer and output it. */
+			long temp = System.currentTimeMillis();
+
+			if (temp - time < 5000) {
+				countDownText = "" + (5999 - (temp - time)) / 1000;
+			} else if (temp - time <= 5500) {
+				countDownText = "Start!";
+			} else {
+				countDownText = "";
+				stopCounter = true;
+				startTime = System.currentTimeMillis();
+				view.startBlinkDetection();
+			}
+		}
+
 		int xPos = (int) ((canvas.getWidth() - paint.getTextSize()
 				* Math.abs(countDownText.length() / 2)) / 2);
 		int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint
 				.ascent()) / 2));
 
-		// canvas.drawText(countDownText.concat("" + count++), xPos, yPos,
-		// paint);
 		canvas.drawText(countDownText, xPos, yPos, paint);
 	}
 
@@ -132,13 +115,11 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 	}
 
 	public FdActivity() {
-		Log.i(TAG, "Instantiated new " + this.getClass());
 		this.thiz = this;
 	}
 
 	@Override
 	protected void onPause() {
-		Log.i(TAG, "onPause");
 		super.onPause();
 
 		if (view != null)
@@ -147,7 +128,6 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 
 	@Override
 	protected void onResume() {
-		Log.i(TAG, "onResume");
 		super.onResume();
 
 		if (view != null && !view.openCamera()) {
@@ -167,11 +147,8 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-		Log.i(TAG, "Trying to load OpenCV library");
 
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
 				openCVCallBack)) {
