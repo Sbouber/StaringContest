@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Vibrator;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.support.v4.app.NavUtils;
 
 public class HighscoresActivity extends Activity {
 
@@ -76,6 +78,12 @@ public class HighscoresActivity extends Activity {
 		prefsEditor.clear();
 		prefsEditor.commit();
 
+		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		v.vibrate(100);
+		
+		prefsEditor.clear();
+		prefsEditor.commit();
+
 		Intent intent = getIntent();
 		finish();
 		startActivity(intent);
@@ -106,7 +114,7 @@ public class HighscoresActivity extends Activity {
 			//
 			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
 			//
-			// NavUtils.navigateUpFromSameTask(this);
+			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
