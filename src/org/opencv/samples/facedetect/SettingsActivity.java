@@ -5,9 +5,13 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class SettingsActivity extends Activity {
 
+	private boolean debug = true;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,6 +52,22 @@ public class SettingsActivity extends Activity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public boolean getDebug() {
+		return this.debug;
+	}
+	
+	public void setDebug(View view) {
+		Button button = (Button) findViewById(R.id.debug_button);
+		if (debug) {
+			debug = false;
+			button.setText("Debug mode: false");
+		}
+		else {
+			debug = true;
+			button.setText("Debug mode: true");
+		}
 	}
 
 }

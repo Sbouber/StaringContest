@@ -8,18 +8,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".SettingsActivity" >
 
-    <EditText
-        android:id="@+id/ip_host"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:ems="10"
-        android:hint="@string/ip_host" >
-
-    </EditText>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,5 +15,28 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:text="@string/submit_ip" />
+
+    <EditText
+        android:id="@+id/ip_host"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:ems="10"
+        android:hint="@string/ip_host" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/debug_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="110dp"
+        android:onClick="setDebug"
+        android:text="Debug mode: true" />
 
 </RelativeLayout>
