@@ -57,6 +57,7 @@ class FdView extends SampleCvViewBase {
 	private boolean enableCountDown = true;
 	private boolean enableBlinkDetection = false;
 	private boolean gameOver = false;
+	private boolean debug = true;
 	private int missedFrames = 0;
 	private OnReadyCountDownListener listener;
 
@@ -132,6 +133,8 @@ class FdView extends SampleCvViewBase {
 	protected Bitmap processFrame(VideoCapture capture) {
 		capture.retrieve(rgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
 		capture.retrieve(gray, Highgui.CV_CAP_ANDROID_GREY_FRAME);
+		
+		debug = SettingsActivity.getDebug();
 
 		if (absoluteFaceSize == 0) {
 			int height = gray.rows();
@@ -175,7 +178,9 @@ class FdView extends SampleCvViewBase {
 
 				Rect eyearea = new Rect(x + 10, y, width - 10, height);
 
-				Core.rectangle(rgba, eyearea.tl(), eyearea.br(), BLUE, 2);
+				if (debug) {
+					Core.rectangle(rgba, eyearea.tl(), eyearea.br(), BLUE, 2);
+				}
 
 				// Determine right eye area
 				x = (face.x + face.width / 16) + 50;
@@ -193,10 +198,12 @@ class FdView extends SampleCvViewBase {
 
 				Rect leftEyeArea = new Rect(x, y, width, height);
 
-				Core.rectangle(rgba, leftEyeArea.tl(), leftEyeArea.br(), PINK,
-						2);
-				Core.rectangle(rgba, rightEyeArea.tl(), rightEyeArea.br(),
-						ORANGE, 2);
+				if (debug) {
+					Core.rectangle(rgba, leftEyeArea.tl(), leftEyeArea.br(), PINK,
+							2);
+					Core.rectangle(rgba, rightEyeArea.tl(), rightEyeArea.br(),
+							ORANGE, 2);
+				}
 
 				Mat leftEyeGray = null;
 				Mat rightEyeGray = null;
@@ -284,14 +291,17 @@ class FdView extends SampleCvViewBase {
 
 				try {
 					// Convert back to RGBA
-					Imgproc.cvtColor(leftEyeGray, leftEyeGray,
-							Imgproc.COLOR_GRAY2BGRA);
-					Imgproc.cvtColor(rightEyeGray, rightEyeGray,
-							Imgproc.COLOR_GRAY2BGRA);
+					if (debug) {
+						Imgproc.cvtColor(leftEyeGray, leftEyeGray,
+								Imgproc.COLOR_GRAY2BGRA);
+						Imgproc.cvtColor(rightEyeGray, rightEyeGray,
+								Imgproc.COLOR_GRAY2BGRA);
+					
 
-					Imgproc.resize(leftEyeGray, zoomWindow, zoomWindow.size());
-					Imgproc.resize(rightEyeGray, zoomWindow2,
-							zoomWindow2.size());
+						Imgproc.resize(leftEyeGray, zoomWindow, zoomWindow.size());
+						Imgproc.resize(rightEyeGray, zoomWindow2,
+								zoomWindow2.size());
+					}
 				} catch (Exception e) {
 					Log.e(TAG, "error cv: " + e.getLocalizedMessage());
 				}
