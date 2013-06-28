@@ -70,19 +70,40 @@ public class HighscoresActivity extends Activity {
 
 	}
 
-	public void resetHigh(View view) {
+	public void alertReset(View view) {
+		
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+		alertDialog
+				.setMessage("Reset highscores?")
+				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						resetHigh();
+					}
+				})
+				.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.dismiss();
+								/*finish();*/							}
+						});
+		alertDialog.show();
+	}
+	
+	public void resetHigh() {
 		SharedPreferences myPrefs = this.getSharedPreferences("myPrefs",
 				MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = myPrefs.edit();
 		prefsEditor.clear();
 		prefsEditor.commit();
-
+	
 		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(100);
-
+	
 		prefsEditor.clear();
 		prefsEditor.commit();
-
+	
 		Intent intent = getIntent();
 		finish();
 		startActivity(intent);
