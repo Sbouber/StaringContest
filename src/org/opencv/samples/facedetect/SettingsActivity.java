@@ -9,7 +9,7 @@ import android.widget.Button;
 
 public class SettingsActivity extends Activity {
 
-	private static boolean debug = true;
+	private static boolean debug;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

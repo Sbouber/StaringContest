@@ -20,7 +20,7 @@
     <string name="title_activity_settings">Settings</string>
     <string name="ip_host">Enter IP Host</string>
     <string name="submit_ip">Submit IP</string>
-    <string name="debug_button">Debug mode: true</string>
+    <string name="debug_button">Debug mode: false</string>
     <string name="game_over">Game over!</string>
 
 </resources>

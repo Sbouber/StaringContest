@@ -57,7 +57,7 @@ class FdView extends SampleCvViewBase {
 	private boolean enableCountDown = true;
 	private boolean enableBlinkDetection = false;
 	private boolean gameOver = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	private int missedFrames = 0;
 	private OnReadyCountDownListener listener;
 
