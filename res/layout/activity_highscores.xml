@@ -22,6 +22,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dip"
         android:text="@string/button_reset"
-       	android:onClick="resetHigh" />
+       	android:onClick="alertReset" />
 	
 </RelativeLayout>
