@@ -2,9 +2,9 @@
 
     <item
         android:id="@+id/action_settings"
+        android:onClick="goToSettings"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:onClick="goToSettings"
         android:title="@string/action_settings"/>
 
 </menu>

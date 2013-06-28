@@ -157,6 +157,30 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 		}
 	}
 
+	@Override
+	public void onBackPressed() {
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+		alertDialog
+				.setMessage("Exit the app?")
+				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						Intent startMain = new Intent(Intent.ACTION_MAIN);
+						startMain.addCategory(Intent.CATEGORY_HOME);
+						startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						startActivity(startMain);
+					}
+				})
+				.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								// User cancelled the dialog
+							}
+						});
+		alertDialog.show();
+	}
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

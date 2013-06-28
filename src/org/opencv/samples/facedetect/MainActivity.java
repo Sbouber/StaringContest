@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 	public void onBackPressed() {
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog
-				.setMessage("Exit this app")
+				.setMessage("Exit this app?")
 				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {

@@ -1,7 +1,9 @@
 package org.opencv.samples.facedetect;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -71,7 +73,7 @@ public class HighscoresActivity extends Activity {
 	}
 
 	public void alertReset(View view) {
-		
+
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog
 				.setMessage("Reset highscores?")
@@ -86,24 +88,24 @@ public class HighscoresActivity extends Activity {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								dialog.dismiss();
-								/*finish();*/							}
+								/* finish(); */}
 						});
 		alertDialog.show();
 	}
-	
+
 	public void resetHigh() {
 		SharedPreferences myPrefs = this.getSharedPreferences("myPrefs",
 				MODE_PRIVATE);
 		SharedPreferences.Editor prefsEditor = myPrefs.edit();
 		prefsEditor.clear();
 		prefsEditor.commit();
-	
+
 		Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(100);
-	
+
 		prefsEditor.clear();
 		prefsEditor.commit();
-	
+
 		Intent intent = getIntent();
 		finish();
 		startActivity(intent);
