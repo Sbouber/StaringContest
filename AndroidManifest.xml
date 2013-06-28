@@ -21,13 +21,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.opencv.samples.facedetect.SingleplayerActivity"
-            android:label="@string/title_activity_singleplayer" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.opencv.samples.facedetect.MainActivity" />
-        </activity>
-        <activity
             android:name="org.opencv.samples.facedetect.MultiplayerActivity"
             android:label="@string/title_activity_multiplayer" >
             <meta-data
@@ -50,10 +43,6 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
-        </activity>
-        <activity
-            android:name="org.opencv.samples.facedetect.Teset"
-            android:label="@string/title_activity_teset" >
         </activity>
         <activity
             android:name="org.opencv.samples.facedetect.SettingsActivity"
