@@ -9,6 +9,7 @@
     tools:context=".SettingsActivity" >
 
     <Button
+        android:id="@+id/ip_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ip_host"
@@ -33,10 +34,10 @@
         android:id="@+id/debug_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="110dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/ip_button"
         android:onClick="setDebug"
-        android:text="Debug mode: true" />
+        android:text="@string/debug_button" />
 
 </RelativeLayout>
