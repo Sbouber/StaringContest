@@ -53,7 +53,7 @@ public class FdActivity extends Activity implements OnReadyCountDownListener {
 					AlertDialog ad = new AlertDialog.Builder(mAppContext)
 							.create();
 					ad.setCancelable(false); // This blocks the 'BACK' button
-					ad.setMessage("Fatal error: can't open camera!");
+					ad.setMessage("No front camera available!");
 					ad.setButton("OK", new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {

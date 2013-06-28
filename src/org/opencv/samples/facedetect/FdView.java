@@ -215,7 +215,7 @@ class FdView extends SampleCvViewBase {
 
 					// Find right eye threshold
 					Imgproc.threshold(rightEyeGray, rightEyeGray,
-							thresholdLeft, 255, Imgproc.THRESH_BINARY);
+							thresholdRight, 255, Imgproc.THRESH_BINARY);
 					Imgproc.medianBlur(rightEyeGray, rightEyeGray, 11);
 
 					double minRight = Core.minMaxLoc(rightEyeGray).minVal;
